@@ -27,7 +27,7 @@
         @DataFormat(style=DataFormatUitl.NUMBER, pattern="##.##%")
         public Object getMfloat();
     }
-	
+    
  2. 获取此接口对象
     FormatInterface f = DataFormatUitl.newInstance(obj, FormatInterface.class);
 	
