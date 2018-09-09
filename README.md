@@ -27,11 +27,10 @@
         @DataFormat(style=DataFormatUitl.NUMBER, pattern="##.##%")
         public Object getMfloat();
     }
-    
  2. 获取此接口对象
     FormatInterface f = DataFormatUitl.newInstance(obj, FormatInterface.class);
-	
-    //返回指定格式值
+
+ 3. 返回指定格式值
     f.getMlong();
 </pre>
 </p>
