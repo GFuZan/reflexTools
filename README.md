@@ -11,8 +11,8 @@
  * 注意: 请使用基本类型的包装类作为类的属性
  <pre>
  简单示例:
-	//加法
-	ObjectComputedUtil.add( obj1, obj2);
+    //加法
+    ObjectComputedUtil.add( obj1, obj2);
  </pre>
 </p>
 
@@ -22,17 +22,17 @@
 <pre>
  简单示例:
  1.定义Format接口
-	public interface FormatInterface{
+    public interface FormatInterface{
 	
-		@DataFormat(style=DataFormatUitl.NUMBER, pattern="##.##%")
-		public Object getMfloat();
-	}
+        @DataFormat(style=DataFormatUitl.NUMBER, pattern="##.##%")
+        public Object getMfloat();
+    }
 	
- 2.	获取此接口对象
-	FormatInterface f = DataFormatUitl.newInstance(obj, FormatInterface.class);
+ 2. 获取此接口对象
+    FormatInterface f = DataFormatUitl.newInstance(obj, FormatInterface.class);
 	
-	//返回指定格式值
-	f.getMlong();
+    //返回指定格式值
+    f.getMlong();
 </pre>
 </p>
 <p>
@@ -41,18 +41,18 @@
  <pre>
  简单示例:
  1. 定义toList接口
-	public interface toListInterface {
-		@Object2List(-1)
-		public Object getMlong();
+     public interface toListInterface {
+        @Object2List(-1)
+        public Object getMlong();
 
-		@Object2List(6)
-		public Object getDate();
+        @Object2List(6)
+        public Object getDate();
 		
-		@Object2List(3)
-		public Object getMfloat();
-	}
- 2.进行转换	
-	List<Object> list = Object2ListUtil.toList(format(),toListInterface.class);
+        @Object2List(3)
+        public Object getMfloat();
+    }
+ 2. 进行转换	
+    List<Object> list = Object2ListUtil.toList(format(),toListInterface.class);
  </pre>
 </p>
 
@@ -60,8 +60,8 @@
 通过指定属性名的方式获取/设置对象的属性
  <pre>
  简单示例:
-	//对象obj的name属性赋值为"张三"
-	ObjectOperationUtil.set(obj, "name", "张三");
+    //对象obj的name属性赋值为"张三"
+    ObjectOperationUtil.set(obj, "name", "张三");
  </pre>
 
 </p>
