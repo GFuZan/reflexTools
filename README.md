@@ -15,7 +15,6 @@
     ObjectComputedUtil.add( obj1, obj2);
 </pre>
 </p>
-
 <p>
 <h5>2. 数据Format工具</h5>
 使用动态代理实现,通过注解指定Format格式
@@ -54,6 +53,7 @@
     List<Object> list = Object2ListUtil.toList(format(),toListInterface.class);
 </pre>
 </p>
+<p>
 <h5>4. 对象属性的get/set工具</h5>
 通过指定属性名的方式获取/设置对象的属性
 <pre>
