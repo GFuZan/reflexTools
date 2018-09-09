@@ -56,9 +56,9 @@
 <p>
 <h5>4. 对象属性的get/set工具</h5>
 通过指定属性名的方式获取/设置对象的属性
-<pre>
+
  简单示例:
     //对象obj的name属性赋值为"张三"
     ObjectOperationUtil.set(obj, "name", "张三");
-</pre>
+
 </p>
