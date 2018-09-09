@@ -50,7 +50,7 @@
         public Object getMfloat();
     }
  2.进行转换	
-    List<Object> list = Object2ListUtil.toList(format(),toListInterface.class); 
+    List< Object > list = Object2ListUtil.toList(format(),toListInterface.class); 
 </pre>
 </p>
 <p>
