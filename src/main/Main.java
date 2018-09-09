@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.List;
 
 import test.obj.B;
-import test.obj.C;
 import test.obj.D;
 import test.obj.FormatInterface;
 import test.obj.toListInterface;
@@ -18,16 +17,16 @@ public class Main {
 
 	public static void main(String[] args) throws Exception {
 //		format();
-//		
+
 //		szys();
 		
 //		o2l();
 		
-		oo();
+		attSetTest();
 	}
 
 	//对象属性赋值测试
-	private static void oo() {
+	private static void attSetTest() {
 		D d= new D();
 		
 		ObjectOperationUtil.set(d, "a", null);
@@ -117,7 +116,7 @@ public class Main {
 		
 		
 		// 对象四则运算
-		System.out.println("+   " + ObjectComputedUtil.add(true, b1, b));
+		System.out.println("+   " + ObjectComputedUtil.add( b1, b));
 		
 		Object o= new Object(); 
 		System.out.println("-   " + ObjectComputedUtil.subtract(true,b1, c));

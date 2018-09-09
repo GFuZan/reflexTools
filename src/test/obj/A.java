@@ -1,8 +1,10 @@
 package test.obj;
 
 public class A {
+	
 	private String name;
 	private int age;
+	
 	public String getName() {
 		return name;
 	}

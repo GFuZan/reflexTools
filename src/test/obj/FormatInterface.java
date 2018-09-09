@@ -4,7 +4,7 @@ import tool.dataformat.DataFormat;
 import tool.dataformat.DataFormatUitl;
 
 public interface FormatInterface extends toListInterface {
-	
+
 	@DataFormat(style=DataFormatUitl.NUMBER, pattern="\u00A4,###")
 	public Object getMlong();
 	

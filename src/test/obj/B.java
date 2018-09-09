@@ -7,7 +7,6 @@ import tool.obj2list.Object2List;
 
 public class B extends A implements FormatInterface {
 
-
 	@Override
 	public String toString() {
 		return super.toString()+"B [sex=" + sex + ", d=" + d + ", mbyte=" + mbyte + ", mfloat="
