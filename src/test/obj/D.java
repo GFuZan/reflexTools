@@ -1,7 +1,7 @@
 package test.obj;
 
 public class D {
-	private Integer a;
+	private Integer a = 90;
 	private Integer A;
 	private Integer aA;
 	private Integer Aa;

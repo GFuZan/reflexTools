@@ -30,8 +30,8 @@ public class Main {
 	private static void oo() {
 		D d= new D();
 		
-		ObjectOperationUtil.set(d, "a", 1);
-		ObjectOperationUtil.set(d, "A", 2);
+		ObjectOperationUtil.set(d, "a", null);
+//		ObjectOperationUtil.set(d, "A", 2);
 		ObjectOperationUtil.set(d, "aA", 3);
 		ObjectOperationUtil.set(d, "Aa", 4);
 		ObjectOperationUtil.set(d, "AA", 5);

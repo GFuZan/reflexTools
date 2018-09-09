@@ -144,7 +144,7 @@ public class ObjectOperationUtil {
 		if (opErr) {
 			try {
 				Field field = null;
-				field = type.getField(attName);
+				field = type.getDeclaredField(attName);
 				field.setAccessible(true);
 
 				if (methodName.indexOf("get") != -1) {
@@ -154,6 +154,7 @@ public class ObjectOperationUtil {
 					res = o;
 				}
 			} catch (Exception e) {
+				System.out.println(e);
 				if (SHOW_LOG) {
 					System.err.println(getThisName() + ": [ERROR] 属性'" + attName + "'操作失败.");
 				}
