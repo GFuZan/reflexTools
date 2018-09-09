@@ -44,7 +44,7 @@
 	public interface toListInterface {
 		@Object2List(-1)
 		public Object getMlong();
-		
+
 		@Object2List(6)
 		public Object getDate();
 		
