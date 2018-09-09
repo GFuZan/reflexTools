@@ -9,11 +9,11 @@
  * 3.对于boolean类型属性所有运算操作均为异或运算<br/>
  * 4对于String类型只有 + 运算 <br/>
  * 注意: 请使用基本类型的包装类作为类的属性
- <pre>
+<pre>
  简单示例:
     //加法
     ObjectComputedUtil.add( obj1, obj2);
- </pre>
+</pre>
 </p>
 
 <p>
@@ -37,7 +37,7 @@
 <p>
 <h5>3. 对象转数组工具</h5>
 通过注解指定属性的先后顺序,生成数组
- <pre>
+<pre>
  简单示例:
  1.定义toList接口
      public interface toListInterface {
@@ -52,13 +52,13 @@
     }
  2.进行转换	
     List<Object> list = Object2ListUtil.toList(format(),toListInterface.class);
- </pre>
+</pre>
 </p>
 <h5>4. 对象属性的get/set工具</h5>
 通过指定属性名的方式获取/设置对象的属性
- <pre>
+<pre>
  简单示例:
     //对象obj的name属性赋值为"张三"
     ObjectOperationUtil.set(obj, "name", "张三");
- </pre>
+</pre>
 </p>
