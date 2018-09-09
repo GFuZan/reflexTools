@@ -154,7 +154,6 @@ public class ObjectOperationUtil {
 					res = o;
 				}
 			} catch (Exception e) {
-				System.out.println(e);
 				if (SHOW_LOG) {
 					System.err.println(getThisName() + ": [ERROR] 属性'" + attName + "'操作失败.");
 				}
