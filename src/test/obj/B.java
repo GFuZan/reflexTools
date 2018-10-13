@@ -5,13 +5,13 @@ import java.util.Date;
 
 import tool.obj2list.Object2List;
 
-public class B extends A implements FormatInterface {
+public class B extends A implements FormatInterface,Cloneable {
 
 	@Override
 	public String toString() {
 		return super.toString()+"B [sex=" + sex + ", d=" + d + ", mbyte=" + mbyte + ", mfloat="
 				+ mfloat + ", mshort=" + mshort + ", mint=" + mint + ", mlong="
-				+ mlong + ", mchar=" + mchar + ", mbig=" + mbig + ", date=" + date +"]";
+				+ mlong + ", mchar=" + mchar + ", mbig=" + mbig + ",mbig2=" + mbig2 + ", mStr=" + mStr + ", date=" + date +"]";
 	}
 	private Boolean sex;
 	private Double d;
@@ -20,9 +20,12 @@ public class B extends A implements FormatInterface {
 	private Short mshort;
 	private Integer mint;
 	private Long mlong;
+	private String mStr;
 	private Character mchar;
 	
 	private BigDecimal mbig;
+	
+	private BigDecimal mbig2;
 	
 	private Date date;
 
@@ -83,9 +86,9 @@ public class B extends A implements FormatInterface {
 		this.mlong = mlong;
 	}
 
-//	public Character getMchar() {
-//		return mchar;
-//	}
+	public Character getMchar() {
+		return mchar;
+	}
 
 	public void setMchar(Character mchar) {
 		this.mchar = mchar;
@@ -105,6 +108,31 @@ public class B extends A implements FormatInterface {
 
 	public void setDate(Date date) {
 		this.date = date;
+	}
+	public B clone(){
+		B res = null;
+		try {
+			res = (B) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return res;
+	}
+
+	public String getmStr() {
+		return mStr;
+	}
+
+	public void setmStr(String mStr) {
+		this.mStr = mStr;
+	}
+
+	public BigDecimal getMbig2() {
+		return mbig2;
+	}
+
+	public void setMbig2(BigDecimal mbig2) {
+		this.mbig2 = mbig2;
 	}
 	
 }

@@ -1,6 +1,8 @@
 package main;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -12,6 +14,7 @@ import tool.ObjectComputed.ObjectComputedUtil;
 import tool.dataformat.DataFormatUitl;
 import tool.obj2list.Object2ListUtil;
 import tool.objectoperation.ObjectOperationUtil;
+import tool.objectvaluereplace.ObjectValueReplaceUtill;
 
 public class Main {
 
@@ -22,11 +25,16 @@ public class Main {
 		
 //		o2l();
 		
-		attSetTest();
+//		attSetTest();
+		
+//		cloneTest();
+		
+		thTest();
+		
 	}
 
 	//对象属性赋值测试
-	private static void attSetTest() {
+	public static void attSetTest() {
 		D d= new D();
 		
 		ObjectOperationUtil.set(d, "a", null);
@@ -46,7 +54,7 @@ public class Main {
 	/**
 	 * 数值格式化测试
 	 */
-	private static FormatInterface format(){
+	public static FormatInterface format(){
 		B a = new B();
 		a.setAge(999999);
 		a.setName("李四");
@@ -71,7 +79,7 @@ public class Main {
 	/**
 	 * 四则运算测试
 	 */
-	private static void szys() {
+	public static void szys() {
 		B b = new B();
 		b.setAge(10);
 		b.setName("张三");
@@ -128,7 +136,7 @@ public class Main {
 	/**
 	 * 对象转数组测试
 	 */
-	private static void o2l() {
+	public static void o2l() {
 		B a = new B();
 		a.setAge(999999);
 		a.setName("李四");
@@ -145,5 +153,67 @@ public class Main {
 		
 		List<Object> list = Object2ListUtil.toList(format(),toListInterface.class);
 		System.out.println(list);
+	}
+	
+	public static void cloneTest() throws Exception{
+		B a = new B();
+		a.setAge(999999);
+		a.setName("李四");
+		 a.setSex(false);
+		a.setD(333.33);
+		a.setMbig(new BigDecimal("9.9"));
+		 a.setMbyte((byte)10);
+		 a.setMchar('x');
+		 a.setMfloat(44f);
+		  a.setMint(100);
+		a.setMlong(1234567890l);
+		 a.setMshort((short)50);
+		a.setDate(new Date());
+		
+		B b = a.clone();
+		b.setAge(1111);
+		b.setName("李");
+		 b.setSex(true);
+		b.setD(444.33);
+		b.setMbig(new BigDecimal("8.9"));
+		 b.setMbyte((byte)11);
+		 b.setMchar('y');
+		 b.setMfloat(55f);
+		  b.setMint(101);
+		b.setMlong(17890l);
+		 b.setMshort((short)40);
+		b.setDate(new SimpleDateFormat("yyyy-MM-dd").parse("2017-01-01"));
+		
+		System.err.println(a);
+		System.err.println(b);
+	}
+	
+	/**
+	 * 属性值替换
+	 */
+	public static void thTest(){
+		B b = new B();
+		
+		b.setAge(10);
+		b.setName("张三");
+		b.setSex(false);
+		b.setD(0.0);
+		b.setMbig(new BigDecimal("666"));
+		b.setMbig2(new BigDecimal("0"));
+		b.setMbyte((byte) 0);
+		b.setMchar('x');
+		b.setMfloat(4.44f);
+		b.setMint(100);
+		b.setMlong(2000l);
+		b.setMshort((short) 50);
+		
+		System.out.println(b);
+		
+//		ObjectValueReplaceUtill.execute(b, "x", "15");
+		
+		b = ObjectValueReplaceUtill.execute(b, "false", null);
+		b = ObjectValueReplaceUtill.execute(b, null, "true",Boolean.class);
+		
+		System.out.println(b);
 	}
 }

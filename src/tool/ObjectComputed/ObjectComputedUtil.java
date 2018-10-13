@@ -277,6 +277,14 @@ public class ObjectComputedUtil {
 
 	@SuppressWarnings("unchecked")
 	private static <T> T objectOperation(T o1, T o2, char op, boolean nullIsZero, Boolean defValueIsOne, Class<?>... opAttType) {
+		if(o1 == null && o2 == null){
+			return null;
+		}else if(o1 == null){
+			return o2;
+		}else if(o2 == null){
+			return o1;
+		}
+		
 		Class<?> type = o1.getClass();
 		Object res = null;
 		try {
