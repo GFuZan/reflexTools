@@ -96,12 +96,13 @@ public class ObjectValueReplaceUtill {
 						try {
 							// 执行替换
 							tarV = valueReplaceHandle(v, srcValue, targetValue, getMethod.getReturnType(), handleType);
-						} catch (Exception e) {
-							if (SHOW_LOG) {
-								System.err.println(getThisName() + ": [WARN] " + "未操作属性类型: " + getMethod.getReturnType().getName() + ", 检索值: " + srcValue + ", 目标值 : " + targetValue);
+						} catch (InvocationTargetException e) {
+							if (SHOW_LOG && "WARN".equals(e.getTargetException().getMessage())) {
+								System.err.println(getThisName() + ": [WARN] " + "未操作属性类型: " + getMethod.getReturnType().getName() + ", "+e.getMessage());
 							}
+							continue;
 						}
-
+						
 						// 属性赋值
 						m.invoke(res, tarV);
 
@@ -136,8 +137,10 @@ public class ObjectValueReplaceUtill {
 	 * @param handleType
 	 *            可选 指定替换的属性类型
 	 * @return 替换后的值
+	 * @throws InvocationTargetException
+	 *             不支持的类型值
 	 */
-	private static Object valueReplaceHandle(Object v, String srcValue, String targetValue, Class<?> paramType, Class<?>... handleType) {
+	private static Object valueReplaceHandle(Object v, String srcValue, String targetValue, Class<?> paramType, Class<?>... handleType) throws InvocationTargetException {
 
 		Object res = v;
 
@@ -145,7 +148,8 @@ public class ObjectValueReplaceUtill {
 		if (handleType != null && handleType.length != 0) {
 			// 判断对象内属性类型 是否包含在指定属性类型中
 			if (!Arrays.asList(handleType).contains(paramType)) {
-				return res;
+				// 未指定类型
+				throw new InvocationTargetException(new Throwable("INFO"), "未指定此类型");
 			}
 		}
 
@@ -169,6 +173,9 @@ public class ObjectValueReplaceUtill {
 			res = valueReplaceExec(v, srcValue, targetValue, OpAttType.isBoolean);
 		} else if (String.class.equals(paramType)) {
 			res = valueReplaceExec(v, srcValue, targetValue, OpAttType.isString);
+		} else {
+			// 不支持的类型
+			throw new InvocationTargetException(new Throwable("WARN"), "不支持类型: " + paramType.getName());
 		}
 
 		return res;
@@ -184,8 +191,9 @@ public class ObjectValueReplaceUtill {
 	 * @param opAttType
 	 *            属性类型
 	 * @return 替换后的值
+	 * @throws InvocationTargetException
 	 */
-	private static Object valueReplaceExec(Object v, String srcValue, String targetValue, int opAttType) {
+	private static Object valueReplaceExec(Object v, String srcValue, String targetValue, int opAttType) throws InvocationTargetException {
 
 		Object res = v;
 
@@ -198,101 +206,111 @@ public class ObjectValueReplaceUtill {
 		if (v == null && srcValue == null) {
 			isEqual = true;
 		}
-
-		switch (opAttType) {
-		case OpAttType.isBigDecimal:
-			if (isEqual || ((v != null && srcValue != null) && (new BigDecimal(srcValue).compareTo((BigDecimal) v) == 0))) {
-				isEqual = true;
-				if (!targetValueIsNULL) {
-					res = new BigDecimal(targetValue);
-				}
-			}
-			break;
-		case OpAttType.isInteger:
-			if (isEqual || ((v != null && srcValue != null) && (Integer.parseInt(srcValue) == (Integer) v))) {
-				isEqual = true;
-				if (!targetValueIsNULL) {
-					res = Integer.parseInt(targetValue);
-				}
-			}
-			break;
-		case OpAttType.isLong:
-			if (isEqual || ((v != null && srcValue != null) && (Long.parseLong(srcValue) == (Long) v))) {
-				isEqual = true;
-				if (!targetValueIsNULL) {
-					res = Long.parseLong(targetValue);
-				}
-			}
-			break;
-		case OpAttType.isShort:
-			if (isEqual || ((v != null && srcValue != null) && (Short.parseShort(srcValue) == (Short) v))) {
-				isEqual = true;
-				if (!targetValueIsNULL) {
-					res = Short.parseShort(targetValue);
-				}
-			}
-			break;
-		case OpAttType.isCharacter:
-			if (isEqual || ((v != null && srcValue != null) && (srcValue.toCharArray()[0] == (Character) v))) {
-				isEqual = true;
-				if (!targetValueIsNULL) {
-					if (targetValue.length() == 0) {
-						res = '\0';
-					} else {
-						res = targetValue.charAt(0);
+		try {
+			switch (opAttType) {
+			case OpAttType.isBigDecimal:
+				if (isEqual || ((v != null && srcValue != null) && (new BigDecimal(srcValue).compareTo((BigDecimal) v) == 0))) {
+					isEqual = true;
+					if (!targetValueIsNULL) {
+						res = new BigDecimal(targetValue);
 					}
 				}
-			}
-			break;
-		case OpAttType.isByte:
-			if (isEqual || ((v != null && srcValue != null) && (Byte.parseByte(srcValue) == (Byte) v))) {
-				isEqual = true;
-				if (!targetValueIsNULL) {
-					res = Byte.parseByte(targetValue);
+				break;
+			case OpAttType.isInteger:
+				if (isEqual || ((v != null && srcValue != null) && (Integer.parseInt(srcValue) == (Integer) v))) {
+					isEqual = true;
+					if (!targetValueIsNULL) {
+						res = Integer.parseInt(targetValue);
+					}
 				}
-			}
-			break;
-		case OpAttType.isDouble:
-			if (isEqual || ((v != null && srcValue != null) && (Double.parseDouble(srcValue) == (Double) v))) {
-				isEqual = true;
-				if (!targetValueIsNULL) {
-					res = Double.parseDouble(targetValue);
+				break;
+			case OpAttType.isLong:
+				if (isEqual || ((v != null && srcValue != null) && (Long.parseLong(srcValue) == (Long) v))) {
+					isEqual = true;
+					if (!targetValueIsNULL) {
+						res = Long.parseLong(targetValue);
+					}
 				}
-			}
-			break;
-		case OpAttType.isFloat:
-			if (isEqual || ((v != null && srcValue != null) && (Float.parseFloat(srcValue) == (Float) v))) {
-				isEqual = true;
-				if (!targetValueIsNULL) {
-					res = Float.parseFloat(targetValue);
+				break;
+			case OpAttType.isShort:
+				if (isEqual || ((v != null && srcValue != null) && (Short.parseShort(srcValue) == (Short) v))) {
+					isEqual = true;
+					if (!targetValueIsNULL) {
+						res = Short.parseShort(targetValue);
+					}
 				}
-			}
-			break;
-		case OpAttType.isBoolean:
-			if (isEqual || ((v != null && srcValue != null) && ("false".equals(srcValue) || "true".equals(srcValue)) && (Boolean.parseBoolean(srcValue) == (Boolean) v))) {
-				isEqual = true;
-				if (!targetValueIsNULL && ("false".equals(targetValue) || "true".equals(targetValue))) {
-					res = Boolean.parseBoolean(targetValue);
+				break;
+			case OpAttType.isCharacter:
+				if (isEqual || ((v != null && srcValue != null) && (srcValue.toCharArray()[0] == (Character) v))) {
+					isEqual = true;
+					if (!targetValueIsNULL) {
+						if (targetValue.length() == 0) {
+							res = '\0';
+						} else {
+							res = targetValue.charAt(0);
+						}
+					}
 				}
-			}
-			break;
-		case OpAttType.isString:
-			if (isEqual || ((v != null && srcValue != null) && (srcValue.equals(v)))) {
-				isEqual = true;
-				if (!targetValueIsNULL) {
-					res = targetValue;
+				break;
+			case OpAttType.isByte:
+				if (isEqual || ((v != null && srcValue != null) && (Byte.parseByte(srcValue) == (Byte) v))) {
+					isEqual = true;
+					if (!targetValueIsNULL) {
+						res = Byte.parseByte(targetValue);
+					}
 				}
+				break;
+			case OpAttType.isDouble:
+				if (isEqual || ((v != null && srcValue != null) && (Double.parseDouble(srcValue) == (Double) v))) {
+					isEqual = true;
+					if (!targetValueIsNULL) {
+						res = Double.parseDouble(targetValue);
+					}
+				}
+				break;
+			case OpAttType.isFloat:
+				if (isEqual || ((v != null && srcValue != null) && (Float.parseFloat(srcValue) == (Float) v))) {
+					isEqual = true;
+					if (!targetValueIsNULL) {
+						res = Float.parseFloat(targetValue);
+					}
+				}
+				break;
+			case OpAttType.isBoolean:
+				if (isEqual || ((v != null && srcValue != null) && ("false".equals(srcValue) || "true".equals(srcValue)) && (Boolean.parseBoolean(srcValue) == (Boolean) v))) {
+					isEqual = true;
+					if (!targetValueIsNULL && ("false".equals(targetValue) || "true".equals(targetValue))) {
+						res = Boolean.parseBoolean(targetValue);
+					}
+				}
+				break;
+			case OpAttType.isString:
+				if (isEqual || ((v != null && srcValue != null) && (srcValue.equals(v)))) {
+					isEqual = true;
+					if (!targetValueIsNULL) {
+						res = targetValue;
+					}
+				}
+				break;
 			}
-			break;
+		} catch (Exception e) {
+			//设置值时出现异常
+			if (isEqual) {
+				throw new InvocationTargetException(new Throwable("WARN"), "设置值失败:  " + srcValue);
+			}
 		}
-
-		// 需要替换 并且目标值为null
-		if (isEqual && targetValueIsNULL) {
-			return null;
+		// 需要替换
+		if (isEqual) {
+			// 目标值为null
+			if (targetValueIsNULL) {
+				return null;
+			} else {
+				return res;
+			}
 		} else {
-			return res;
+			// 没有搜索到值
+			throw new InvocationTargetException(new Throwable("INFO"), "没有搜索到值: " + srcValue);
 		}
-
 	}
 
 	/**
