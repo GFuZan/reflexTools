@@ -330,17 +330,17 @@ public class ObjectValueReplaceUtill {
 		return split[split.length - 1];
 
 	}
-}
-
-class OpAttType {
-	static final int isBigDecimal = 1;
-	static final int isInteger = 2;
-	static final int isLong = 3;
-	static final int isShort = 4;
-	static final int isCharacter = 5;
-	static final int isByte = 6;
-	static final int isDouble = 7;
-	static final int isFloat = 8;
-	static final int isBoolean = 9;
-	static final int isString = 10;
+	
+	class OpAttType {
+	    static final int isBigDecimal = 1;
+	    static final int isInteger = 2;
+	    static final int isLong = 3;
+	    static final int isShort = 4;
+	    static final int isCharacter = 5;
+	    static final int isByte = 6;
+	    static final int isDouble = 7;
+	    static final int isFloat = 8;
+	    static final int isBoolean = 9;
+	    static final int isString = 10;
+	}
 }

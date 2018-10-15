@@ -336,7 +336,7 @@ public class ObjectComputedUtil {
 	/**
 	 * @return 类型判断执行相应操作方法
 	 */
-	private static Object operation(Object o1, Object o2, char op, boolean nullIsZero, Boolean defValueIsOne, Class<?>... opAttType) {
+	private static Object operation(Object o1, Object o2, char op, boolean nullIsZero, Boolean defValueIsOne, Class<?>... opAttType) throws Exception{
 		Object res = null;
 
 		OpAttType ot = attTypeHandle(opAttType);
@@ -705,14 +705,15 @@ public class ObjectComputedUtil {
 		return res;
 	}
 
-	private static OpAttType attTypeHandle(Class<?>... opAttType) {
+	private static OpAttType attTypeHandle(Class<?>... opAttType) throws Exception{
 		OpAttType res = null;
 		try {
-			res = OpAttType.class.newInstance();
+		    res = ObjectComputedUtil.class.newInstance().new OpAttType();
 		} catch (Exception e) {
 			System.err.println(getThisName() + ": [ERROR] 创建 'OpAttType' 类失败.");
+			throw e;
 		}
-		;
+
 		for (Class<?> c : opAttType) {
 			if (c.getName().indexOf("Integer") != -1) {
 				res.isSetValue = true;
@@ -757,19 +758,19 @@ public class ObjectComputedUtil {
 		return split[split.length - 1];
 
 	}
-}
-
-class OpAttType {
-	boolean isBigDecimal;
-	boolean isInteger;
-	boolean isLong;
-	boolean isShort;
-	boolean isCharacter;
-	boolean isByte;
-	boolean isDouble;
-	boolean isFloat;
-	boolean isBoolean;
-	boolean isString;
-	// 设置了值
-	boolean isSetValue;
+	
+	class OpAttType {
+	    boolean isBigDecimal;
+	    boolean isInteger;
+	    boolean isLong;
+	    boolean isShort;
+	    boolean isCharacter;
+	    boolean isByte;
+	    boolean isDouble;
+	    boolean isFloat;
+	    boolean isBoolean;
+	    boolean isString;
+	    // 设置了值
+	    boolean isSetValue;
+	}
 }
