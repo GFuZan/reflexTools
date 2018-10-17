@@ -6,6 +6,7 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.math.RoundingMode;
 
 /**
  * Format注解
@@ -20,4 +21,5 @@ public @interface DataFormat {
 	public String style();
 
 	public String pattern() default "0";
+	public RoundingMode roundingMode() default RoundingMode.HALF_UP ;
 }

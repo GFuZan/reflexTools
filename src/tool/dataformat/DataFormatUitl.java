@@ -8,7 +8,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 
 /**
- * 使用动态代理进行数据Forma
+ * 使用动态代理进行数据Format
  * 
  * @author GFuZan
  */
@@ -85,6 +85,7 @@ public class DataFormatUitl implements InvocationHandler {
 			switch (df.style()) {
 			case NUMBER:
 				numFormat.applyPattern(df.pattern());
+                numFormat.setRoundingMode(df.roundingMode());
 				res = numFormat.format(value);
 				break;
 			case DATETIME:
@@ -135,4 +136,6 @@ public class DataFormatUitl implements InvocationHandler {
 		return split[split.length - 1];
 
 	}
+    private DataFormatUitl() {
+    }
 }
