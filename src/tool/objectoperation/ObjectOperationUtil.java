@@ -2,6 +2,7 @@ package tool.objectoperation;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * 获取/设置对象的属性
@@ -13,7 +14,7 @@ public class ObjectOperationUtil {
 	/**
 	 * 是否输出log
 	 */
-	private static final boolean SHOW_LOG = true;
+	private static boolean SHOW_LOG = true;
 
 	private ObjectOperationUtil() {
 
@@ -28,9 +29,12 @@ public class ObjectOperationUtil {
 	 *            属性名
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public static Object get(Object o, String attName) {
 		if (o == null || attName == null || attName.isEmpty()) {
 			return null;
+		}else if(o instanceof Map){
+			return mapGet((Map<String, Object>) o, attName);				
 		}
 		String methodName = attNameHandle("get", attName);
 
@@ -52,7 +56,10 @@ public class ObjectOperationUtil {
 	public static <T> T get(Object o, String attName, Class<T> returnType) {
 		if (o == null || attName == null || attName.isEmpty()) {
 			return null;
+		}else if(o instanceof Map){
+			return  (T) mapGet((Map<String, Object>) o, attName);				
 		}
+		
 		String methodName = attNameHandle("get", attName);
 
 		return (T) Operation(o, methodName, attName, null, null);
@@ -76,7 +83,11 @@ public class ObjectOperationUtil {
 	public static <T> T set(T o, String attName, Object value) {
 		if (o == null || attName == null || attName.isEmpty()) {
 			return null;
+		}else if(o instanceof Map){
+			mapPush((Map<String, Object>) o, attName,value);
+			return o;
 		}
+		
 		String methodName = attNameHandle("set", attName);
 
 		return (T) Operation(o, methodName, attName, null, value);
@@ -99,7 +110,11 @@ public class ObjectOperationUtil {
 	public static <T> T set(T o, String attName, Object value, Class<?> paramType) {
 		if (o == null || attName == null || attName.isEmpty()) {
 			return null;
+		}else if(o instanceof Map){
+			mapPush((Map<String, Object>) o, attName,value);
+			return o;
 		}
+		
 		String methodName = attNameHandle("set", attName);
 
 		return (T) Operation(o, methodName, attName, paramType, value);
@@ -190,6 +205,26 @@ public class ObjectOperationUtil {
 		return res.toString();
 	}
 
+	/**
+	 * map对象设值
+	 * @param map
+	 * @param attName key
+	 * @param value 值
+	 */
+	private static  void mapPush(Map<String, Object> map, String attName, Object value){
+		map.put(attName, value);
+	}
+	
+	/**
+	 * map对象获取值
+	 * @param map
+	 * @param attName 属性
+	 * @return
+	 */
+	private static Object mapGet(Map<String, Object> map, String attName){
+		return map.get(attName);
+	}
+	
 	/**
 	 * @return 当前类名
 	 */

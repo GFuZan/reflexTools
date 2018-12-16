@@ -1,18 +1,19 @@
 package main;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import test.obj.B;
 import test.obj.D;
 import test.obj.FormatInterface;
 import test.obj.toListInterface;
-import tool.ObjectComputed.ObjectComputedUtil;
 import tool.dataformat.DataFormatUitl;
 import tool.obj2list.Object2ListUtil;
+import tool.objectcomputed.ObjectComputedUtil;
 import tool.objectoperation.ObjectOperationUtil;
 import tool.objectvaluereplace.ObjectValueReplaceUtill;
 
@@ -25,11 +26,11 @@ public class Main {
 		
 //		o2l();
 		
-//		attSetTest();
+		attSetTest();
 		
 //		cloneTest();
 		
-		thTest();
+//		thTest();
 		
 	}
 
@@ -49,6 +50,16 @@ public class Main {
 		System.out.println("aA = "+ ObjectOperationUtil.get(d, "aA", Integer.class));
 		System.out.println("Aa = "+ ObjectOperationUtil.get(d, "Aa", Integer.class));
 		System.out.println("AA = "+ ObjectOperationUtil.get(d, "AA", Integer.class));
+		
+		Map<String, String> map = new HashMap<>();
+		
+		
+		ObjectOperationUtil.set(map, "哈哈", "不好");
+		ObjectOperationUtil.set(map, "1", "2");
+		
+		for(String key : map.keySet()){
+			System.out.println(key.toString() +"= "+ ObjectOperationUtil.get(map, key));
+		}
 	}
 
 	/**
