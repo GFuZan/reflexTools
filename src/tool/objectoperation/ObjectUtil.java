@@ -10,16 +10,17 @@ import java.util.Map;
  * @author GFuZan
  *
  */
-public class ObjectOperationUtil {
+public class ObjectUtil {
 	/**
 	 * 是否输出log
 	 */
 	private static boolean SHOW_LOG = true;
 
-	private ObjectOperationUtil() {
+	private ObjectUtil() {
 
 	}
 
+	
 	/**
 	 * 获取属性值
 	 * 
@@ -29,18 +30,10 @@ public class ObjectOperationUtil {
 	 *            属性名
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public static Object get(Object o, String attName) {
-		if (o == null || attName == null || attName.isEmpty()) {
-			return null;
-		}else if(o instanceof Map){
-			return mapGet((Map<String, Object>) o, attName);				
-		}
-		String methodName = attNameHandle("get", attName);
-
-		return Operation(o, methodName, attName, null, null);
+		return get(o, attName, false);
 	}
-
+	
 	/**
 	 * 获取属性值
 	 * 
@@ -54,15 +47,48 @@ public class ObjectOperationUtil {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T get(Object o, String attName, Class<T> returnType) {
+		return (T) get(o, attName,false);
+	}
+
+	/**
+	 * 获取属性值
+	 * 
+	 * @param o
+	 *            操作对象
+	 * @param attName
+	 *            属性名
+	 * @param opField
+	 * 			        直接操作属性
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static Object get(Object o, String attName,boolean opField) {
 		if (o == null || attName == null || attName.isEmpty()) {
 			return null;
 		}else if(o instanceof Map){
-			return  (T) mapGet((Map<String, Object>) o, attName);				
+			return mapGet((Map<String, Object>) o, attName);				
 		}
-		
 		String methodName = attNameHandle("get", attName);
 
-		return (T) Operation(o, methodName, attName, null, null);
+		return Operation(o, methodName, attName, null, null,opField);
+	}
+	
+	/**
+	 * 获取属性值
+	 * 
+	 * @param o
+	 *            操作对象
+	 * @param attName
+	 *            属性名
+	 * @param returnType
+	 *            返回值类型
+	 * @param opField
+	 * 			        直接操作属性
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T get(Object o, String attName, Class<T> returnType,boolean opField) {
+		return (T) get(o, attName,opField);
 	}
 
 	/**
@@ -79,18 +105,8 @@ public class ObjectOperationUtil {
 	 *            参数值
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public static <T> T set(T o, String attName, Object value) {
-		if (o == null || attName == null || attName.isEmpty()) {
-			return null;
-		}else if(o instanceof Map){
-			mapPush((Map<String, Object>) o, attName,value);
-			return o;
-		}
-		
-		String methodName = attNameHandle("set", attName);
-
-		return (T) Operation(o, methodName, attName, null, value);
+		return (T) set(o, attName, value, null, false);
 	}
 
 	/**
@@ -106,8 +122,44 @@ public class ObjectOperationUtil {
 	 *            参数类型
 	 * @return 操作后对象
 	 */
-	@SuppressWarnings("unchecked")
 	public static <T> T set(T o, String attName, Object value, Class<?> paramType) {
+		return (T) set(o, attName, value, paramType, false);
+	}
+	
+	/**
+	 * 设置属性值
+	 * 
+	 * @param o
+	 *            操作对象
+	 * @param attName
+	 *            属性名
+	 * @param value
+	 *            参数值
+	 * @param opField
+	 * 			        直接操作属性
+	 * @return 操作后对象
+	 */
+	public static <T> T set(T o, String attName, Object value, boolean opField) {
+		return (T) set(o, attName, value, null, opField);
+	}
+	
+	/**
+	 * 设置属性值
+	 * 
+	 * @param o
+	 *            操作对象
+	 * @param attName
+	 *            属性名
+	 * @param value
+	 *            参数值
+	 * @param paramType
+	 *            参数类型
+	 * @param opField
+	 * 			        直接操作属性
+	 * @return 操作后对象
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T set(T o, String attName, Object value, Class<?> paramType,boolean opField) {
 		if (o == null || attName == null || attName.isEmpty()) {
 			return null;
 		}else if(o instanceof Map){
@@ -117,7 +169,7 @@ public class ObjectOperationUtil {
 		
 		String methodName = attNameHandle("set", attName);
 
-		return (T) Operation(o, methodName, attName, paramType, value);
+		return (T) Operation(o, methodName, attName, paramType, value,opField);
 	}
 
 	/**
@@ -129,40 +181,45 @@ public class ObjectOperationUtil {
 	 *            属性名
 	 * @param value
 	 *            值
+	 * @param opField
+	 * 			        直接操作属性
 	 * @return get方法返回实际值 set方法返回操作后对象
 	 */
-	private static Object Operation(Object o, String methodName, String attName, Class<?> paramType, Object value) {
+	private static Object Operation(Object o, String methodName, String attName, Class<?> paramType, Object value,boolean opField) {
 		// 方法赋值出错
 		boolean opErr = false;
 		Object res = null;
 		Class<?> type = o.getClass();
-		try {
-			Method method = null;
-			if (methodName.indexOf("get") != -1) {
-				// get
-				method = type.getMethod(methodName);
-				res = method.invoke(o);
-			} else {
-				// set
-				paramType = paramType == null ? value.getClass() : paramType;
-				method = type.getMethod(methodName, paramType);
-				method.invoke(o, value);
-				res = o;
-			}
-		} catch (Exception e) {
-			opErr = true;
-			if (SHOW_LOG) {
-				System.err.println(getThisName() + ": [WARN] 直接对属性'" + attName + "进行操作(不借助get/set方法).");
+		// 不是直接操作属性,尝试使用get/set方法
+		if(!opField){
+			try {
+				Method method = null;
+				if (methodName.startsWith("get")) {
+					// get
+					method = type.getMethod(methodName);
+					res = method.invoke(o);
+				} else {
+					// set
+					paramType = paramType == null ? value.getClass() : paramType;
+					method = type.getMethod(methodName, paramType);
+					method.invoke(o, value);
+					res = o;
+				}
+			} catch (Exception e) {
+				opErr = true;
+				if (SHOW_LOG) {
+					System.err.println(getThisName() + ": [WARN] 直接对属性'" + attName + "进行操作(不借助get/set方法).");
+				}
 			}
 		}
 
-		if (opErr) {
+		if (opErr || opField) {
 			try {
 				Field field = null;
 				field = type.getDeclaredField(attName);
 				field.setAccessible(true);
 
-				if (methodName.indexOf("get") != -1) {
+				if (methodName.startsWith("get")) {
 					res = field.get(o);
 				} else {
 					field.set(o, value);
@@ -229,7 +286,7 @@ public class ObjectOperationUtil {
 	 * @return 当前类名
 	 */
 	private static String getThisName() {
-		String[] split = ObjectOperationUtil.class.getName().split("\\.");
+		String[] split = ObjectUtil.class.getName().split("\\.");
 		return split[split.length - 1];
 
 	}

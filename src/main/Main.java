@@ -14,7 +14,7 @@ import test.obj.toListInterface;
 import tool.dataformat.DataFormatUitl;
 import tool.obj2list.Object2ListUtil;
 import tool.objectcomputed.ObjectComputedUtil;
-import tool.objectoperation.ObjectOperationUtil;
+import tool.objectoperation.ObjectUtil;
 import tool.objectvaluereplace.ObjectValueReplaceUtill;
 
 public class Main {
@@ -38,27 +38,27 @@ public class Main {
 	public static void attSetTest() {
 		D d= new D();
 		
-		ObjectOperationUtil.set(d, "a", null);
+		ObjectUtil.set(d, "a", null);
 //		ObjectOperationUtil.set(d, "A", 2);
-		ObjectOperationUtil.set(d, "aA", 3);
-		ObjectOperationUtil.set(d, "Aa", 4);
-		ObjectOperationUtil.set(d, "AA", 5);
+		ObjectUtil.set(d, "aA", 3);
+		ObjectUtil.set(d, "Aa", 4);
+		ObjectUtil.set(d, "AA", 5);
 		
 		//对象中包含属性 a 与 A, get set方法重合 
-		System.out.println("a = "+ ObjectOperationUtil.get(d, "a", Integer.class));
-		System.out.println("A = "+ ObjectOperationUtil.get(d, "A", Integer.class));
-		System.out.println("aA = "+ ObjectOperationUtil.get(d, "aA", Integer.class));
-		System.out.println("Aa = "+ ObjectOperationUtil.get(d, "Aa", Integer.class));
-		System.out.println("AA = "+ ObjectOperationUtil.get(d, "AA", Integer.class));
+		System.out.println("a = "+ ObjectUtil.get(d, "a", Integer.class));
+		System.out.println("A = "+ ObjectUtil.get(d, "A", Integer.class));
+		System.out.println("aA = "+ ObjectUtil.get(d, "aA", Integer.class));
+		System.out.println("Aa = "+ ObjectUtil.get(d, "Aa", Integer.class));
+		System.out.println("AA = "+ ObjectUtil.get(d, "AA", Integer.class));
 		
 		Map<String, String> map = new HashMap<>();
 		
 		
-		ObjectOperationUtil.set(map, "哈哈", "不好");
-		ObjectOperationUtil.set(map, "1", "2");
+		ObjectUtil.set(map, "哈哈", "不好");
+		ObjectUtil.set(map, "1", "2");
 		
 		for(String key : map.keySet()){
-			System.out.println(key.toString() +"= "+ ObjectOperationUtil.get(map, key));
+			System.out.println(key.toString() +"= "+ ObjectUtil.get(map, key));
 		}
 	}
 
