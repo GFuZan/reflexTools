@@ -208,7 +208,7 @@ public class ObjectUtil {
 			} catch (Exception e) {
 				opErr = true;
 				if (SHOW_LOG) {
-					System.err.println(getThisName() + ": [WARN] 直接对属性'" + attName + "进行操作(不借助get/set方法).");
+					System.err.println(getThisName() + ": [WARN] 直接对属性'" + attName + "'进行操作(不借助get/set方法).");
 				}
 			}
 		}
