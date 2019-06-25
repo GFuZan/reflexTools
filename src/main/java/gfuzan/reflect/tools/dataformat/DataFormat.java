@@ -18,8 +18,9 @@ import java.math.RoundingMode;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface DataFormat {
-	public String style();
+    public String style();
 
-	public String pattern() default "0";
-	public RoundingMode roundingMode() default RoundingMode.HALF_UP ;
+    public String pattern() default "0";
+
+    public RoundingMode roundingMode() default RoundingMode.HALF_UP;
 }
