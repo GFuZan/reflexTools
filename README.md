@@ -78,5 +78,7 @@
                 return null;
             }
         });
+     
+     // 自连接表格数据转树,参照测试代码TreeUtilTest.java
 </pre>
 </p>
