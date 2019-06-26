@@ -22,7 +22,7 @@
  简单示例:
  1.定义Format接口
     public interface FormatInterface{
-	
+
         @DataFormat(style=DataFormatUitl.NUMBER, pattern="##.##%")
         public Object getMfloat();
     }
@@ -45,12 +45,12 @@
 
         @Object2List(6)
         public Object getDate();
-		
+
         @Object2List(3)
         public Object getMfloat();
     }
- 2.进行转换	
-    List< Object > list = Object2ListUtil.toList(format(),toListInterface.class); 
+ 2.进行转换
+    List< Object > list = Object2ListUtil.toList(format(),toListInterface.class);
 </pre>
 </p>
 <p>
@@ -59,6 +59,6 @@
 <pre>
  简单示例:
     //对象obj的name属性赋值为"张三"
-    ObjectUtil.set(obj, "name", "张三");
+    new ObjectUtil.set(obj, "name", "张三");
 </pre>
 </p>
