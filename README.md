@@ -68,7 +68,7 @@
 <pre>
   简单示例:
     //树遍历(找到所有深度为3的节点)
-    TreeUtil.treeTraversal(tree, new TreeUtil.TreeNodeOpMethod<TreeNode>() {
+    TreeUtil.treeTraversal(tree, new TreeUtil.TreeNodeOpMethod< TreeNode >() {
             @Override
             public StopType opFunc(TreeNodeVo node, int depth) {
                 if (depth == 3) {
