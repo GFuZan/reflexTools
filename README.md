@@ -63,21 +63,20 @@
 </pre>
 </p>
 <p>
-<h5>5. 平铺数据转树工具</h5>
-将<br/>
-&emsp;aName &emsp;aCode &emsp;bName &emsp;bCode<br/>
-&emsp;二班 &emsp;001 &emsp;张三 &emsp;0010001<br/>
-转换为<br/>
-{
-&emsp;name: 二班,
-&emsp;code: 001,
-&emsp;sub:{
-&emsp;&emsp;name:张三,
-&emsp;&emsp;code:0010001,
-&emsp;}
-}
+<h5>5. 树工具</h5>
+包含树的遍历,自连接表格数据转树.
 <pre>
- 简单示例:
-    参照TreeUtilTest.java
+  简单示例:
+    //树遍历(找到所有深度为3的节点)
+    TreeUtil.treeTraversal(tree, new TreeUtil.TreeNodeOpMethod<TreeNode>() {
+            @Override
+            public StopType opFunc(TreeNodeVo node, int depth) {
+                if (depth == 3) {
+                    resList.add(node);
+                    return StopType.Node;
+                }
+                return null;
+            }
+        });
 </pre>
 </p>
