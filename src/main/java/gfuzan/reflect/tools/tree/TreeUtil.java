@@ -1,6 +1,7 @@
 package gfuzan.reflect.tools.tree;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import gfuzan.reflect.tools.objectoperation.ObjectUtil;
@@ -18,7 +19,7 @@ public final class TreeUtil {
      * @param tree 树
      * @param opMethod 每个节点的操作函数
      */
-    public final static <T extends TreeNode> void treeTraversal(T tree, TreeNodeOpMethod<T> opMethod) {
+    public final static <T extends TreeNode<T>> void treeTraversal(T tree, TreeNodeOpMethod<T> opMethod) {
         StopTypeWrapper stopTypeWrapper = new StopTypeWrapper();
         stopTypeWrapper.stopType = StopType.NoStop;
         treeTraversal(tree, opMethod, 0, stopTypeWrapper);
@@ -29,7 +30,7 @@ public final class TreeUtil {
      * @param tree 树数组
      * @param opMethod 每个节点的操作函数
      */
-    public final static <T extends TreeNode> void treeTraversalPos(T tree, TreeNodeOpMethod<T> opMethod) {
+    public final static <T extends TreeNode<T>> void treeTraversalPos(T tree, TreeNodeOpMethod<T> opMethod) {
         StopTypeWrapper stopTypeWrapper = new StopTypeWrapper();
         stopTypeWrapper.stopType = StopType.NoStop;
         treeTraversalPos(tree, opMethod, 0, stopTypeWrapper);
@@ -40,7 +41,7 @@ public final class TreeUtil {
      * @param tree 树
      * @param opMethod 每个节点的操作函数
      */
-    public final static <T extends TreeNode> void forestTraversal(List<T> treeList, TreeNodeOpMethod<T> opMethod) {
+    public final static <T extends TreeNode<T>> void forestTraversal(List<T> treeList, TreeNodeOpMethod<T> opMethod) {
         StopTypeWrapper stopTypeWrapper = new StopTypeWrapper();
         stopTypeWrapper.stopType = StopType.NoStop;
         if (treeList != null) {
@@ -55,7 +56,8 @@ public final class TreeUtil {
      * @param tree 树数组
      * @param opMethod 每个节点的操作函数
      */
-    public final static <T extends TreeNode> void forestTraversalPos(List<T> treeList, TreeNodeOpMethod<T> opMethod) {
+    public final static <T extends TreeNode<T>> void forestTraversalPos(List<T> treeList,
+            TreeNodeOpMethod<T> opMethod) {
         StopTypeWrapper stopTypeWrapper = new StopTypeWrapper();
         stopTypeWrapper.stopType = StopType.NoStop;
         if (treeList != null) {
@@ -82,12 +84,37 @@ public final class TreeUtil {
      * </pre>
      * @return
      */
-    public final static <T extends TreeNode> Object2Tree getObject2TreeUtil(String[][] srcAttArray,
+    public final static <T extends TreeNode<T>> Object2Tree getObject2TreeUtil(String[][] srcAttArray,
             String[][] targetAttArray, Class<T> targetType) {
+
+        return getObject2TreeUtil(srcAttArray, targetAttArray, null, targetType);
+    }
+
+    /**
+     * 获取对象转树工具类
+     * @param srcAttArray 原属性值数组
+     * @param targetAttArray 目标属性值数组
+     * @param comparator 比较条件
+     * @param targetType 目标对象类型
+     * <br>示例
+     *<pre>
+     *  srcAttArray={ { "cityName", "cityCode" },
+     *                       { "tierName", "tierCode" }}
+     *  targetAttArray={ { "name", "label" },
+     *                          { "code" } }
+     * 将cityName映射到name和label,cityCode映射到code
+     * 将tierName映射到name和label,tierCode映射到code
+     * srcAttArray需要从小等级开始写(例中:city是tier的下级)
+     * </pre>
+     * @return
+     */
+    public final static <T extends TreeNode<T>> Object2Tree getObject2TreeUtil(String[][] srcAttArray,
+            String[][] targetAttArray, Comparator<T> comparator, Class<T> targetType) {
         if (srcAttArray == null || targetAttArray == null || targetType == null) {
-            throw new NullPointerException("Object2TreeUtil.excute()" + ": srcAttArray, targetAttArray ,targetType 均不能为空");
+            throw new NullPointerException(
+                    "Object2TreeUtil.excute()" + ": srcAttArray, targetAttArray ,targetType 均不能为空");
         }
-        return new Object2Tree(srcAttArray, targetAttArray, targetType);
+        return new Object2Tree(srcAttArray, targetAttArray, comparator, targetType);
     }
 
     /**
@@ -96,7 +123,7 @@ public final class TreeUtil {
      * @param opMethod
      * @param level
      */
-    private final static <T extends TreeNode> void treeTraversal(T tree, TreeNodeOpMethod<T> opMethod, int depth,
+    private final static <T extends TreeNode<T>> void treeTraversal(T tree, TreeNodeOpMethod<T> opMethod, int depth,
             StopTypeWrapper stopTypeWrapper) {
         if (tree != null && !StopType.All.equals(stopTypeWrapper.stopType)) {
 
@@ -108,8 +135,7 @@ public final class TreeUtil {
                 return;
             }
 
-            @SuppressWarnings("unchecked")
-            List<T> childNodes = (List<T>) tree.getChildNode();
+            List<T> childNodes = tree.getChildNode();
             if (childNodes != null) {
                 // 访问子节点
                 for (T childNode : childNodes) {
@@ -125,11 +151,11 @@ public final class TreeUtil {
      * @param subAtt 子节点属性
      * @param opMethod 操作函数
      */
-    private final static <T extends TreeNode> void treeTraversalPos(T tree, TreeNodeOpMethod<T> opMethod, int depth,
+    private final static <T extends TreeNode<T>> void treeTraversalPos(T tree, TreeNodeOpMethod<T> opMethod, int depth,
             StopTypeWrapper stopTypeWrapper) {
         if (tree != null && !StopType.All.equals(stopTypeWrapper.stopType)) {
-            @SuppressWarnings("unchecked")
-            List<T> childNodes = (List<T>) tree.getChildNode();
+
+            List<T> childNodes = tree.getChildNode();
             // 访问子节点
             if (childNodes != null) {
                 for (T childNode : childNodes) {
@@ -152,19 +178,19 @@ public final class TreeUtil {
      * @author GFuZan
      *
      */
-    public static interface TreeNode {
+    public static interface TreeNode<T extends TreeNode<T>> {
 
         /**
         /** 获取当前节点子节点
          * @return childNode
          */
-        public List<? extends TreeNode> getChildNode();
+        public List<T> getChildNode();
 
         /**
         /** 设置当前节点子节点
          * @param childNode
          */
-        public void setChildNode(List<? extends TreeNode> childNode);
+        public void setChildNode(List<T> childNode);
 
     }
 
@@ -173,7 +199,7 @@ public final class TreeUtil {
      * @author GFuZan
      *
      */
-    public static interface TreeNodeOpMethod<T extends TreeNode> {
+    public static interface TreeNodeOpMethod<T extends TreeNode<T>> {
         /**
          * 对每个节点的操作
          * @param tree 树
@@ -213,7 +239,7 @@ public final class TreeUtil {
 
     /**
      * <b>对象转树
-     * <p><b> 安全性: 线程不安全
+     * <p><b> 安全性: 线程安全
      * @author GFuZan
      *
      */
@@ -236,12 +262,12 @@ public final class TreeUtil {
         /**
          * 返回值类型
          */
-        private Class<? extends TreeNode> returnType = null;
+        private Class<?> returnType = null;
 
         /**
          * 比较方法
          */
-        private Comparator<? extends TreeNode> comparator = null;
+        private Comparator<?> comparator = null;
 
         /**
          *  执行转换
@@ -251,8 +277,8 @@ public final class TreeUtil {
          * @param returnType 返回List类型(目标对象)
          * @return 转换后的树List
          */
-        public <T extends TreeNode, S> List<T> excute(List<S> list) {
-            return excute(list, null, null);
+        public <T extends TreeNode<T>, S> List<T> excute(List<S> list) {
+            return excute(list, null);
         }
 
         /**
@@ -264,42 +290,10 @@ public final class TreeUtil {
          * @param returnType 返回List类型(目标对象)
          * @return 转换后的树List
          */
-        public <T extends TreeNode, S> List<T> excute(List<S> list, ConvertOpMethod<T, S> op) {
-            return excute(list, null, op);
-        }
 
-        /**
-         *  执行转换
-         *  @param <T> 目标对象类型
-         *  @param <S> 原始对象类型
-         * @param list  原平铺数据对象列表(已排序)
-         * @param comparator 比较方法,树生成时用于确定唯一节点
-         * @param returnType 返回List类型(目标对象)
-         * @return 转换后的树List
-         */
-        public <T extends TreeNode, S> List<T> excute(List<S> list, Comparator<T> comparator) {
-            return excute(list, comparator, null);
-        }
-
-        /**
-         *  执行转换
-         *  @param <T> 目标对象类型
-         *  @param <S> 原始对象类型
-         * @param list  原平铺数据对象列表(已排序)
-         * @param comparator 比较方法,树生成时用于确定唯一节点
-         * @param op 属性操作方法(可以影响树的生成)
-         * @param returnType 返回List类型(目标对象)
-         * @return 转换后的树List
-         */
-        @SuppressWarnings("unchecked")
-        public <T extends TreeNode, S> List<T> excute(List<S> list, Comparator<T> comparator,
-                ConvertOpMethod<T, S> op) {
+        public <T extends TreeNode<T>, S> List<T> excute(List<S> list, ConvertOpMethod<T, S> op) {
             if (list == null) {
                 return null;
-            }
-
-            if (comparator != null) {
-                this.comparator = comparator;
             }
 
             List<T> oldList = null;
@@ -336,7 +330,7 @@ public final class TreeUtil {
          * @param forest 转换后的树
          * @return
          */
-        public <T extends TreeNode> List<T> removeEmptyNode(List<T> forest) {
+        public <T extends TreeNode<T>> List<T> removeEmptyNode(List<T> forest) {
             return this.removeEmptyNode(forest, null);
         }
 
@@ -346,7 +340,7 @@ public final class TreeUtil {
          * @param 自定义的空对象
          * @return
          */
-        public <T extends TreeNode> List<T> removeEmptyNode(List<T> forest, T emptyObject) {
+        public <T extends TreeNode<T>> List<T> removeEmptyNode(List<T> forest, T emptyObject) {
 
             if (emptyObject == null) {
                 T newObj = null;
@@ -363,8 +357,8 @@ public final class TreeUtil {
 
                 @Override
                 public StopType opFunc(T obj, int depth) {
-                    @SuppressWarnings("unchecked")
-                    List<T> subList = (List<T>) obj.getChildNode();
+
+                    List<T> subList = obj.getChildNode();
                     removeThisListEmptyNode(subList, emptyObj);
                     return StopType.NoStop;
                 }
@@ -379,12 +373,12 @@ public final class TreeUtil {
          * @param emptyObj
          */
         @SuppressWarnings("unchecked")
-        private <T extends TreeNode> void removeThisListEmptyNode(List<T> list, T emptyObj) {
+        private <T extends TreeNode<T>> void removeThisListEmptyNode(List<T> list, T emptyObj) {
             if (list != null) {
                 int len = list.size();
                 for (int i = 0; i < len; i++) {
                     T obj = list.get(i);
-                    if (((Comparator<T>) this.comparator).compare(obj, emptyObj)) {
+                    if (((Comparator<T>) this.comparator).compare(obj, emptyObj) == 0) {
                         List<T> subSubList = (List<T>) obj.getChildNode();
                         list.remove(i--);
                         len--;
@@ -403,7 +397,7 @@ public final class TreeUtil {
          * @return
          */
         @SuppressWarnings("unchecked")
-        private <T extends TreeNode> List<T> levelHandle(List<T> oldList, List<T> newList) {
+        private <T extends TreeNode<T>> List<T> levelHandle(List<T> oldList, List<T> newList) {
             if (oldList == null) {
                 return newList;
             }
@@ -411,7 +405,7 @@ public final class TreeUtil {
             for (int i = 0; i < oldList.size(); i++) {
                 T old = oldList.get(i);
                 T newd = newList.get(i);
-                if (((Comparator<T>) this.comparator).compare(old, newd)) {
+                if (((Comparator<T>) this.comparator).compare(old, newd) == 0) {
                     setChildren(old, (List<T>) newd.getChildNode());
                 } else {
                     oldList.set(i, newd);
@@ -432,7 +426,7 @@ public final class TreeUtil {
          * @return
          * @throws Exception
          */
-        private <T extends TreeNode, S> List<T> splitObject(S row, ConvertOpMethod<T, S> op)
+        private <T extends TreeNode<T>, S> List<T> splitObject(S row, ConvertOpMethod<T, S> op)
                 throws Exception {
 
             List<T> res = new ArrayList<>();
@@ -470,7 +464,7 @@ public final class TreeUtil {
          * @param obj
          * @param subList
          */
-        private <T extends TreeNode> void setChildren(T obj, List<T> subList) {
+        private <T extends TreeNode<T>> void setChildren(T obj, List<T> subList) {
             if (obj == null || subList == null) {
                 return;
             }
@@ -486,7 +480,7 @@ public final class TreeUtil {
          * @param subNode
          */
         @SuppressWarnings("unchecked")
-        private <T extends TreeNode> void setChildren(T obj, T subNode) {
+        private <T extends TreeNode<T>> void setChildren(T obj, T subNode) {
             if (obj == null || subNode == null) {
                 return;
             }
@@ -497,7 +491,7 @@ public final class TreeUtil {
                 subList.add(subNode);
                 obj.setChildNode(subList);
             } else if (!subList.isEmpty()) {
-                if (!((Comparator<T>) this.comparator).compare(subNode, subList.get(subList.size() - 1))) {
+                if (((Comparator<T>) this.comparator).compare(subNode, subList.get(subList.size() - 1)) != 0) {
                     subList.add(subNode);
                 }
             } else {
@@ -512,7 +506,7 @@ public final class TreeUtil {
          * @throws Exception
          */
         @SuppressWarnings("unchecked")
-        private <T extends TreeNode> T getNewObject() throws Exception {
+        private <T extends TreeNode<T>> T getNewObject() throws Exception {
             T t = null;
             try {
                 t = (T) this.returnType.newInstance();
@@ -527,8 +521,8 @@ public final class TreeUtil {
          * @param targetAttArray 目标属性值数组
          * @param childrenAtt 子节点List属性
          */
-        private <T extends TreeNode> Object2Tree(String[][] srcAttArray, String[][] targetAttArray,
-                Class<T> targetType) {
+        private <T extends TreeNode<T>> Object2Tree(String[][] srcAttArray, String[][] targetAttArray,
+                Comparator<T> comparator, Class<T> targetType) {
             String[][] attList = null;
             if (srcAttArray != null) {
                 attList = new String[srcAttArray.length + 1][];
@@ -540,19 +534,22 @@ public final class TreeUtil {
             this.attList = attList;
             this.targetAttList = targetAttArray;
             this.returnType = targetType;
-            this.comparator = new Comparator<T>() {
-                @Override
-                public boolean compare(T o1, T o2) {
-                    if (o1 == o2) {
-                        return true;
-                    } else if (o1 == null) {
-                        return o2 == null ? true : false;
-                    } else if (o1.equals(o2)) {
-                        return true;
+
+            if (comparator != null) {
+                this.comparator = comparator;
+            } else {
+                this.comparator = new Comparator<T>() {
+                    @Override
+                    public int compare(T o1, T o2) {
+                        if (o1 == o2) {
+                            return 0;
+                        } else {
+                            boolean r = o1 != null ? o1.equals(o2) : o2.equals(o1);
+                            return r ? 0 : 1;
+                        }
                     }
-                    return false;
-                }
-            };
+                };
+            }
         }
 
         private Object2Tree() {
@@ -562,21 +559,13 @@ public final class TreeUtil {
          * 转换操作方法
          * @author GFuZan
          */
-        public static interface ConvertOpMethod<T extends TreeNode, S> {
+        public static interface ConvertOpMethod<T extends TreeNode<T>, S> {
             /**
              * @param targetObject 目标对象
              * @param srcObject 源对象
              * @param depth 起始值 0
              */
             public void opFunc(T targetObject, S srcObject, int depth);
-        }
-
-        /**
-         * 比较方法
-         * @author GFuZan
-         */
-        public static interface Comparator<T extends TreeNode> {
-            boolean compare(T obj, T emptyObj);
         }
     }
 }

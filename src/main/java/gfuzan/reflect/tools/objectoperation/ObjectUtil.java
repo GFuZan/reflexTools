@@ -248,6 +248,9 @@ public class ObjectUtil {
         return res;
     }
 
+    /**
+     * 清理缓存
+     */
     public void cleanCache() {
         this.cacheKey = new CacheKey(null, null);
         this.cache = new Cache();

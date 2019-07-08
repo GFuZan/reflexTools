@@ -4,7 +4,7 @@ import java.util.List;
 
 import gfuzan.reflect.tools.tree.TreeUtil.TreeNode;
 
-public class TreeNodeVo implements TreeNode {
+public class TreeNodeVo implements TreeNode<TreeNodeVo> {
     /**
      * 标签
      */
@@ -80,13 +80,12 @@ public class TreeNodeVo implements TreeNode {
     }
 
     @Override
-    public List<? extends TreeNode> getChildNode() {
+    public List<TreeNodeVo> getChildNode() {
         return this.getChildren();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public void setChildNode(List<? extends TreeNode> childNode) {
-        this.setChildren((List<TreeNodeVo>) childNode);
+    public void setChildNode(List<TreeNodeVo> childNode) {
+        this.setChildren(childNode);
     }
 }
