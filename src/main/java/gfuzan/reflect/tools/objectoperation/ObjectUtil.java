@@ -39,7 +39,7 @@ public class ObjectUtil {
      * @return
      */
     public Object get(Object o, String fieldName) {
-        return get(o, fieldName, false);
+        return getObject(o, fieldName, OpType.auto);
     }
 
     /**
@@ -55,7 +55,7 @@ public class ObjectUtil {
      */
     @SuppressWarnings("unchecked")
     public <T> T get(Object o, String fieldName, Class<T> returnType) {
-        return (T) get(o, fieldName, false);
+        return (T) getObject(o, fieldName, OpType.auto);
     }
 
     /**
@@ -65,19 +65,12 @@ public class ObjectUtil {
      *            操作对象
      * @param fieldName
      *            属性名
-     * @param opField
+     * @param opType
      *            直接操作属性
      * @return
      */
-    @SuppressWarnings("unchecked")
-    public Object get(Object o, String fieldName, boolean opField) {
-        if (o == null || fieldName == null || fieldName.isEmpty()) {
-            return null;
-        } else if (o instanceof Map) {
-            return mapGet((Map<String, Object>) o, fieldName);
-        }
-
-        return operation(o, GET, fieldName, null, null, opField);
+    public Object get(Object o, String fieldName, OpType opType) {
+        return getObject(o, fieldName, opType);
     }
 
     /**
@@ -94,9 +87,30 @@ public class ObjectUtil {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public <T> T get(Object o, String fieldName, Class<T> returnType,
-            boolean opField) {
-        return (T) get(o, fieldName, opField);
+    public <T> T get(Object o, String fieldName, Class<T> returnType, OpType opType) {
+        return (T) getObject(o, fieldName, opType);
+    }
+
+    /**
+     * 获取属性值
+     *
+     * @param o
+     *            操作对象
+     * @param fieldName
+     *            属性名
+     * @param opField
+     *            直接操作属性
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    private final Object getObject(Object o, String fieldName, OpType opType) {
+        if (o == null || fieldName == null || fieldName.isEmpty() || opType == null) {
+            throw new NullPointerException("参数: o,fieldName,opType 均不能为空");
+        } else if (o instanceof Map) {
+            return mapGet((Map<String, Object>) o, fieldName);
+        }
+
+        return operation(o, GET, fieldName, null, null, opType);
     }
 
     /**
@@ -114,7 +128,7 @@ public class ObjectUtil {
      * @return
      */
     public <T> T set(T o, String fieldName, Object value) {
-        return (T) set(o, fieldName, value, null, false);
+        return (T) setObject(o, fieldName, value, null, OpType.auto);
     }
 
     /**
@@ -132,7 +146,7 @@ public class ObjectUtil {
      */
     public <T> T set(T o, String fieldName, Object value,
             Class<?> paramType) {
-        return (T) set(o, fieldName, value, paramType, false);
+        return (T) setObject(o, fieldName, value, paramType, OpType.auto);
     }
 
     /**
@@ -148,8 +162,27 @@ public class ObjectUtil {
      *            直接操作属性
      * @return 操作后对象
      */
-    public <T> T set(T o, String fieldName, Object value, boolean opField) {
-        return (T) set(o, fieldName, value, null, opField);
+    public <T> T set(T o, String fieldName, Object value, OpType opType) {
+        return (T) setObject(o, fieldName, value, null, opType);
+    }
+
+    /**
+     * 设置属性值
+     *
+     * @param o
+     *            操作对象
+     * @param fieldName
+     *            属性名
+     * @param value
+     *            参数值
+     * @param paramType
+     *            参数类型
+     * @param opField
+     *            直接操作属性
+     * @return 操作后对象
+     */
+    public <T> T set(T o, String fieldName, Object value, Class<?> paramType, OpType opType) {
+        return setObject(o, fieldName, value, paramType, opType);
     }
 
     /**
@@ -168,16 +201,16 @@ public class ObjectUtil {
      * @return 操作后对象
      */
     @SuppressWarnings("unchecked")
-    public <T> T set(T o, String fieldName, Object value,
-            Class<?> paramType, boolean opField) {
-        if (o == null || fieldName == null || fieldName.isEmpty()) {
-            return null;
+    public <T> T setObject(T o, String fieldName, Object value,
+            Class<?> paramType, OpType opType) {
+        if (o == null || fieldName == null || fieldName.isEmpty() || opType == null) {
+            throw new NullPointerException("参数: o,fieldName,opType 均不能为空");
         } else if (o instanceof Map) {
             mapPush((Map<String, Object>) o, fieldName, value);
             return o;
         }
 
-        return (T) operation(o, SET, fieldName, paramType, value, opField);
+        return (T) operation(o, SET, fieldName, paramType, value, opType);
     }
 
     /**
@@ -193,14 +226,14 @@ public class ObjectUtil {
      *            直接操作属性
      * @return get方法返回实际值 set方法返回操作后对象
      */
-    private Object operation(Object o, String methodType, String fieldName, Class<?> paramType, Object value,
-            boolean opField) {
+    private final Object operation(Object o, String methodType, String fieldName, Class<?> paramType, Object value,
+            OpType opType) {
         // 方法赋值出错
         boolean opErr = false;
         Object res = null;
         Class<?> type = o.getClass();
         // 不是直接操作属性,尝试使用get/set方法
-        if (!opField) {
+        if (!OpType.onlyField.equals(opType)) {
             Method method = null;
             try {
                 if (GET.equals(methodType)) {
@@ -223,13 +256,9 @@ public class ObjectUtil {
             } catch (Exception e) {
                 opErr = true;
             }
-            if (opErr && showLog) {
-                System.err.println(getThisName() + ": [WARN] 直接对属性'"
-                        + fieldName + "'进行操作(不借助get/set方法).");
-            }
         }
 
-        if (opErr || opField) {
+        if ((opErr && OpType.auto.equals(opType)) || OpType.onlyField.equals(opType)) {
             opErr = false;
             Field field = null;
             try {
@@ -250,10 +279,9 @@ public class ObjectUtil {
             } catch (Exception e) {
                 opErr = true;
             }
-            if (opErr && showLog) {
-                System.err.println(getThisName() + ": [ERROR] 属性'"
-                        + fieldName + "'操作失败.");
-            }
+        }
+        if (opErr && showLog) {
+            System.err.println(getThisName() + ": [ERROR] "+type.getName()+"." + fieldName + "'操作失败.");
         }
 
         return res;
@@ -344,7 +372,7 @@ public class ObjectUtil {
      * @param value
      *            值
      */
-    private void mapPush(Map<String, Object> map, String fieldName,
+    private final void mapPush(Map<String, Object> map, String fieldName,
             Object value) {
         map.put(fieldName, value);
     }
@@ -357,7 +385,7 @@ public class ObjectUtil {
      *            属性
      * @return
      */
-    private Object mapGet(Map<String, Object> map, String fieldName) {
+    private final Object mapGet(Map<String, Object> map, String fieldName) {
         return map.get(fieldName);
     }
 
@@ -396,7 +424,7 @@ public class ObjectUtil {
         }
     }
 
-    protected static class CacheKey {
+    private static class CacheKey {
         public Class<?> type = null;
         public String fieldName = null;
         public String methodType = null;
@@ -468,7 +496,28 @@ public class ObjectUtil {
 
     }
 
-    protected static class CacheValue<T> {
+    private static class CacheValue<T> {
         public T value = null;
+    }
+
+    /**
+     * 操作类型
+     * @author GFuZan
+     *
+     */
+    public static enum OpType {
+
+        /**
+         * 只操作属性
+         */
+        onlyField,
+        /**
+         * 只操作方法
+         */
+        onlyMethod,
+        /**
+         * 优先操作方法,操作方法失败时操作属性
+         */
+        auto;
     }
 }
