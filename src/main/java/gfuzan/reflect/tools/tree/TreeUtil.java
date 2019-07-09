@@ -2,6 +2,8 @@ package gfuzan.reflect.tools.tree;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 
 import gfuzan.reflect.tools.objectoperation.ObjectUtil;
@@ -269,7 +271,6 @@ public final class TreeUtil {
          *  @param <T> 目标对象类型
          *  @param <S> 原始对象类型
          * @param list 原平铺数据对象列表(已排序)
-         * @param returnType 返回List类型(目标对象)
          * @return 转换后的树List
          */
         public <T extends TreeNode<T>, S> List<T> excute(List<S> list) {
@@ -281,8 +282,7 @@ public final class TreeUtil {
          *  @param <T> 目标对象类型
          *  @param <S> 原始对象类型
          * @param list  原平铺数据对象列表(已排序)
-         * @param op 属性操作方法(可以影响树的生成)
-         * @param returnType 返回List类型(目标对象)
+         * @param op 转换操作方法(可以影响树的生成)
          * @return 转换后的树List
          */
 
@@ -354,12 +354,12 @@ public final class TreeUtil {
                 public StopType opFunc(T obj, int depth) {
 
                     List<T> subList = obj.getChildNode();
-                    removeThisListEmptyNode(subList, emptyObj);
+                    obj.setChildNode(removeThisListEmptyNode(subList, emptyObj));
                     return StopType.NoStop;
                 }
             });
-            removeThisListEmptyNode(forest, emptyObject);
-            return forest;
+
+            return removeThisListEmptyNode(forest, emptyObject);
         }
 
         /**(内部)移除当前List下的空节点
@@ -368,20 +368,30 @@ public final class TreeUtil {
          * @param emptyObj
          */
         @SuppressWarnings("unchecked")
-        private <T extends TreeNode<T>> void removeThisListEmptyNode(List<T> list, T emptyObj) {
+        private <T extends TreeNode<T>> List<T> removeThisListEmptyNode(List<T> list, T emptyObj) {
             if (list != null) {
-                int len = list.size();
-                for (int i = 0; i < len; i++) {
+
+                Deque<List<T>> tmpStack = new LinkedList<>();
+                for (int i = list.size() - 1; i >= 0; i--) {
                     T obj = list.get(i);
                     if (((Comparator<T>) this.comparator).compare(obj, emptyObj) == 0) {
                         List<T> subSubList = (List<T>) obj.getChildNode();
-                        list.remove(i--);
-                        len--;
+                        list.remove(i);
                         if (subSubList != null) {
-                            list.addAll(subSubList);
+                            tmpStack.push(subSubList);
                         }
                     }
                 }
+
+                for (; !tmpStack.isEmpty();) {
+                    list.addAll(tmpStack.pop());
+                }
+            }
+
+            if (list != null && !list.isEmpty()) {
+                return list;
+            } else {
+                return null;
             }
         }
 
@@ -402,6 +412,7 @@ public final class TreeUtil {
                 T newd = newList.get(i);
                 if (((Comparator<T>) this.comparator).compare(old, newd) == 0) {
                     setChildren(old, (List<T>) newd.getChildNode());
+                    newd.setChildNode(null);
                 } else {
                     oldList.set(i, newd);
                 }
@@ -445,7 +456,7 @@ public final class TreeUtil {
                 }
                 // 外部操作
                 if (op != null && srcObjectIndex != attList.length - 1) {
-                    op.opFunc(newTarget, row, attList.length - 1 - srcObjectIndex);
+                    op.opFunc(newTarget, row, attList.length - 2 - srcObjectIndex);
                 }
                 res.add(newTarget);
             }
@@ -558,7 +569,7 @@ public final class TreeUtil {
             /**
              * @param targetObject 目标对象
              * @param srcObject 源对象
-             * @param depth 起始值 0
+             * @param depth 深度 起始值:0
              */
             public void opFunc(T targetObject, S srcObject, int depth);
         }
