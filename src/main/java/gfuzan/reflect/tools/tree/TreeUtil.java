@@ -246,11 +246,6 @@ public final class TreeUtil {
     public static class Object2Tree {
 
         /**
-         * 反射工具类
-         */
-        private ObjectUtil objectUtil = null;
-
-        /**
          * 每个对象对应的属性
          */
         private String[][] attList = null;
@@ -298,15 +293,17 @@ public final class TreeUtil {
 
             List<T> oldList = null;
             List<T> newList = null;
+            ObjectUtil objectUtil = new ObjectUtil();
+
+            // 禁用log输出
+            objectUtil.showLog = false;
+
             try {
-                objectUtil = new ObjectUtil();
-                // 禁用log输出
-                objectUtil.showLog = false;
 
                 for (int i = 0; i < list.size(); i++) {
                     S row = list.get(i);
                     // 拆分对象
-                    newList = splitObject(row, op);
+                    newList = splitObject(row, op, objectUtil);
 
                     // 连接上下级
                     oldList = levelHandle(oldList, newList);
@@ -314,8 +311,6 @@ public final class TreeUtil {
 
             } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
-                objectUtil = null;
             }
 
             if (oldList != null && !oldList.isEmpty()) {
@@ -326,7 +321,7 @@ public final class TreeUtil {
         }
 
         /**
-         * 移除空节点(使用生成树时对象比较方法)
+         * 移除空节点
          * @param forest 转换后的树
          * @return
          */
@@ -335,7 +330,7 @@ public final class TreeUtil {
         }
 
         /**
-         * 移除空节点(使用生成树时对象比较方法)
+         * 移除空节点
          * @param forest 转换后的树
          * @param 自定义的空对象
          * @return
@@ -426,7 +421,7 @@ public final class TreeUtil {
          * @return
          * @throws Exception
          */
-        private <T extends TreeNode<T>, S> List<T> splitObject(S row, ConvertOpMethod<T, S> op)
+        private <T extends TreeNode<T>, S> List<T> splitObject(S row, ConvertOpMethod<T, S> op, ObjectUtil objectUtil)
                 throws Exception {
 
             List<T> res = new ArrayList<>();
