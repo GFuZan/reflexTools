@@ -22,9 +22,11 @@ public class ObjectUtil {
 
     private CacheKey cacheKey = null;
 
+    private final static String GET = "get";
+    private final static String SET = "set";
+
     public ObjectUtil() {
-        this.cacheKey = new CacheKey(null, null);
-        this.cache = new Cache();
+        cleanCache();
     }
 
     /**
@@ -32,12 +34,12 @@ public class ObjectUtil {
      *
      * @param o
      *            操作对象
-     * @param attName
+     * @param fieldName
      *            属性名
      * @return
      */
-    public Object get(Object o, String attName) {
-        return get(o, attName, false);
+    public Object get(Object o, String fieldName) {
+        return get(o, fieldName, false);
     }
 
     /**
@@ -45,15 +47,15 @@ public class ObjectUtil {
      *
      * @param o
      *            操作对象
-     * @param attName
+     * @param fieldName
      *            属性名
      * @param returnType
      *            返回值类型
      * @return
      */
     @SuppressWarnings("unchecked")
-    public <T> T get(Object o, String attName, Class<T> returnType) {
-        return (T) get(o, attName, false);
+    public <T> T get(Object o, String fieldName, Class<T> returnType) {
+        return (T) get(o, fieldName, false);
     }
 
     /**
@@ -61,22 +63,21 @@ public class ObjectUtil {
      *
      * @param o
      *            操作对象
-     * @param attName
+     * @param fieldName
      *            属性名
      * @param opField
      *            直接操作属性
      * @return
      */
     @SuppressWarnings("unchecked")
-    public Object get(Object o, String attName, boolean opField) {
-        if (o == null || attName == null || attName.isEmpty()) {
+    public Object get(Object o, String fieldName, boolean opField) {
+        if (o == null || fieldName == null || fieldName.isEmpty()) {
             return null;
         } else if (o instanceof Map) {
-            return mapGet((Map<String, Object>) o, attName);
+            return mapGet((Map<String, Object>) o, fieldName);
         }
-        String methodName = attNameHandle("get", attName);
 
-        return operation(o, methodName, attName, null, null, opField);
+        return operation(o, GET, fieldName, null, null, opField);
     }
 
     /**
@@ -84,7 +85,7 @@ public class ObjectUtil {
      *
      * @param o
      *            操作对象
-     * @param attName
+     * @param fieldName
      *            属性名
      * @param returnType
      *            返回值类型
@@ -93,9 +94,9 @@ public class ObjectUtil {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public <T> T get(Object o, String attName, Class<T> returnType,
+    public <T> T get(Object o, String fieldName, Class<T> returnType,
             boolean opField) {
-        return (T) get(o, attName, opField);
+        return (T) get(o, fieldName, opField);
     }
 
     /**
@@ -106,14 +107,14 @@ public class ObjectUtil {
      *
      * @param o
      *            操作对象
-     * @param attName
+     * @param fieldName
      *            属性名
      * @param value
      *            参数值
      * @return
      */
-    public <T> T set(T o, String attName, Object value) {
-        return (T) set(o, attName, value, null, false);
+    public <T> T set(T o, String fieldName, Object value) {
+        return (T) set(o, fieldName, value, null, false);
     }
 
     /**
@@ -121,7 +122,7 @@ public class ObjectUtil {
      *
      * @param o
      *            操作对象
-     * @param attName
+     * @param fieldName
      *            属性名
      * @param value
      *            参数值
@@ -129,9 +130,9 @@ public class ObjectUtil {
      *            参数类型
      * @return 操作后对象
      */
-    public <T> T set(T o, String attName, Object value,
+    public <T> T set(T o, String fieldName, Object value,
             Class<?> paramType) {
-        return (T) set(o, attName, value, paramType, false);
+        return (T) set(o, fieldName, value, paramType, false);
     }
 
     /**
@@ -139,7 +140,7 @@ public class ObjectUtil {
      *
      * @param o
      *            操作对象
-     * @param attName
+     * @param fieldName
      *            属性名
      * @param value
      *            参数值
@@ -147,8 +148,8 @@ public class ObjectUtil {
      *            直接操作属性
      * @return 操作后对象
      */
-    public <T> T set(T o, String attName, Object value, boolean opField) {
-        return (T) set(o, attName, value, null, opField);
+    public <T> T set(T o, String fieldName, Object value, boolean opField) {
+        return (T) set(o, fieldName, value, null, opField);
     }
 
     /**
@@ -156,7 +157,7 @@ public class ObjectUtil {
      *
      * @param o
      *            操作对象
-     * @param attName
+     * @param fieldName
      *            属性名
      * @param value
      *            参数值
@@ -167,18 +168,16 @@ public class ObjectUtil {
      * @return 操作后对象
      */
     @SuppressWarnings("unchecked")
-    public <T> T set(T o, String attName, Object value,
+    public <T> T set(T o, String fieldName, Object value,
             Class<?> paramType, boolean opField) {
-        if (o == null || attName == null || attName.isEmpty()) {
+        if (o == null || fieldName == null || fieldName.isEmpty()) {
             return null;
         } else if (o instanceof Map) {
-            mapPush((Map<String, Object>) o, attName, value);
+            mapPush((Map<String, Object>) o, fieldName, value);
             return o;
         }
 
-        String methodName = attNameHandle("set", attName);
-
-        return (T) operation(o, methodName, attName, paramType, value, opField);
+        return (T) operation(o, SET, fieldName, paramType, value, opField);
     }
 
     /**
@@ -186,7 +185,7 @@ public class ObjectUtil {
      *            操作对象
      * @param methodName
      *            方法名
-     * @param attName
+     * @param fieldName
      *            属性名
      * @param value
      *            值
@@ -194,54 +193,66 @@ public class ObjectUtil {
      *            直接操作属性
      * @return get方法返回实际值 set方法返回操作后对象
      */
-    private Object operation(Object o, String methodName,
-            String attName, Class<?> paramType, Object value, boolean opField) {
+    private Object operation(Object o, String methodType, String fieldName, Class<?> paramType, Object value,
+            boolean opField) {
         // 方法赋值出错
         boolean opErr = false;
         Object res = null;
         Class<?> type = o.getClass();
         // 不是直接操作属性,尝试使用get/set方法
         if (!opField) {
+            Method method = null;
             try {
-                Method method = null;
-                if (methodName.startsWith("get")) {
-                    // get
-                    method = getMethod(type, methodName);
-                    res = method.invoke(o);
+                if (GET.equals(methodType)) {
+                    method = getMethod(type, fieldName, methodType);
+                    if (method != null) {
+                        res = method.invoke(o);
+                    } else {
+                        opErr = true;
+                    }
                 } else {
-                    // set
-                    paramType = paramType == null ? value.getClass()
-                            : paramType;
-                    method = getMethod(type, methodName, paramType);
-                    method.invoke(o, value);
-                    res = o;
+                    paramType = paramType == null ? value.getClass() : paramType;
+                    method = getMethod(type, fieldName, methodType, paramType);
+                    if (method != null) {
+                        method.invoke(o, value);
+                        res = o;
+                    } else {
+                        opErr = true;
+                    }
                 }
             } catch (Exception e) {
                 opErr = true;
-                if (showLog) {
-                    System.err.println(getThisName() + ": [WARN] 直接对属性'"
-                            + attName + "'进行操作(不借助get/set方法).");
-                }
+            }
+            if (opErr && showLog) {
+                System.err.println(getThisName() + ": [WARN] 直接对属性'"
+                        + fieldName + "'进行操作(不借助get/set方法).");
             }
         }
 
         if (opErr || opField) {
+            opErr = false;
+            Field field = null;
             try {
-                Field field = null;
-                field = getField(type, attName);
-                field.setAccessible(true);
+                field = getField(type, fieldName);
+                if (field != null) {
 
-                if (methodName.startsWith("get")) {
-                    res = field.get(o);
+                    field.setAccessible(true);
+
+                    if (GET.equals(methodType)) {
+                        res = field.get(o);
+                    } else {
+                        field.set(o, value);
+                        res = o;
+                    }
                 } else {
-                    field.set(o, value);
-                    res = o;
+                    opErr = true;
                 }
             } catch (Exception e) {
-                if (showLog) {
-                    System.err.println(getThisName() + ": [ERROR] 属性'"
-                            + attName + "'操作失败.");
-                }
+                opErr = true;
+            }
+            if (opErr && showLog) {
+                System.err.println(getThisName() + ": [ERROR] 属性'"
+                        + fieldName + "'操作失败.");
             }
         }
 
@@ -256,21 +267,30 @@ public class ObjectUtil {
         this.cache = new Cache();
     }
 
-    private final Method getMethod(Class<?> type, String methodName, Class<?>... parameterTypes)
-            throws NoSuchMethodException, SecurityException {
+    private Method getMethod(Class<?> type, String fieldName, String methodType, Class<?>... parameterTypes) {
 
-        CacheKey key = cacheKey.set(type, methodName);
+        CacheKey key = cacheKey.set(type, fieldName, methodType);
         CacheValue<Method> method = this.cache.getMethod(key);
         if (method == null) {
-            key = new CacheKey(type, methodName);
+            key = new CacheKey(type, fieldName, methodType);
             method = new CacheValue<>();
             this.cache.setMethod(key, method);
-            method.value = type.getMethod(methodName, parameterTypes);
+            try {
+                method.value = type.getMethod(methodNameHandle(fieldName, methodType), parameterTypes);
+            } catch (NoSuchMethodException | SecurityException e) {
+                method.value = null;
+            }
         }
         return method.value;
     }
 
-    private final Field getField(Class<?> type, String fieldName) throws NoSuchFieldException, SecurityException {
+    /**
+     * 获取属性
+     * @param type 类
+     * @param fieldName 属性名
+     * @return 属性
+     */
+    public Field getField(Class<?> type, String fieldName) {
 
         CacheKey key = cacheKey.set(type, fieldName);
         CacheValue<Field> field = this.cache.getField(key);
@@ -278,33 +298,37 @@ public class ObjectUtil {
             key = new CacheKey(type, fieldName);
             field = new CacheValue<>();
             this.cache.setField(key, field);
-            field.value = type.getDeclaredField(fieldName);
+            try {
+                field.value = type.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException | SecurityException e) {
+                field.value = null;
+            }
         }
         return field.value;
     }
 
     /**
-     * 属性名处理
+     * 方法名处理
      *
      * @param method
      *            方法(get/set)
-     * @param attName
+     * @param fieldName
      * @return
      */
-    private String attNameHandle(String method, String attName) {
-        StringBuffer res = new StringBuffer(method);
+    private String methodNameHandle(String fieldName, String methodType) {
+        StringBuffer res = new StringBuffer(methodType);
 
-        if (attName.length() == 1) {
-            res.append(attName.toUpperCase());
+        if (fieldName.length() == 1) {
+            res.append(fieldName.toUpperCase());
         } else {
-            char[] charArray = attName.toCharArray();
+            char[] charArray = fieldName.toCharArray();
 
             if (Character.isLowerCase(charArray[0])
                     && Character.isLowerCase(charArray[1])) {
                 res.append(Character.toUpperCase(charArray[0]));
-                res.append(attName.substring(1));
+                res.append(fieldName.substring(1));
             } else {
-                res.append(attName);
+                res.append(fieldName);
             }
         }
 
@@ -315,26 +339,26 @@ public class ObjectUtil {
      * map对象设值
      *
      * @param map
-     * @param attName
+     * @param fieldName
      *            key
      * @param value
      *            值
      */
-    private void mapPush(Map<String, Object> map, String attName,
+    private void mapPush(Map<String, Object> map, String fieldName,
             Object value) {
-        map.put(attName, value);
+        map.put(fieldName, value);
     }
 
     /**
      * map对象获取值
      *
      * @param map
-     * @param attName
+     * @param fieldName
      *            属性
      * @return
      */
-    private Object mapGet(Map<String, Object> map, String attName) {
-        return map.get(attName);
+    private Object mapGet(Map<String, Object> map, String fieldName) {
+        return map.get(fieldName);
     }
 
     /**
@@ -374,17 +398,34 @@ public class ObjectUtil {
 
     protected static class CacheKey {
         public Class<?> type = null;
-        public String name = null;
+        public String fieldName = null;
+        public String methodType = null;
 
-        public CacheKey(Class<?> type, String name) {
+        public CacheKey(Class<?> type, String fieldName) {
             super();
             this.type = type;
-            this.name = name;
+            this.fieldName = fieldName;
+            this.methodType = null;
         }
 
-        public CacheKey set(Class<?> type, String name) {
+        public CacheKey(Class<?> type, String fieldName, String methodType) {
+            super();
             this.type = type;
-            this.name = name;
+            this.fieldName = fieldName;
+            this.methodType = methodType;
+        }
+
+        public CacheKey set(Class<?> type, String fieldName) {
+            this.type = type;
+            this.fieldName = fieldName;
+            this.methodType = null;
+            return this;
+        }
+
+        public CacheKey set(Class<?> type, String fieldName, String methodType) {
+            this.type = type;
+            this.fieldName = fieldName;
+            this.methodType = methodType;
             return this;
         }
 
@@ -392,7 +433,8 @@ public class ObjectUtil {
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + ((name == null) ? 0 : name.hashCode());
+            result = prime * result + ((methodType == null) ? 0 : methodType.hashCode());
+            result = prime * result + ((fieldName == null) ? 0 : fieldName.hashCode());
             result = prime * result + ((type == null) ? 0 : type.hashCode());
             return result;
         }
@@ -406,10 +448,15 @@ public class ObjectUtil {
             if (getClass() != obj.getClass())
                 return false;
             CacheKey other = (CacheKey) obj;
-            if (name == null) {
-                if (other.name != null)
+            if (methodType == null) {
+                if (other.methodType != null)
                     return false;
-            } else if (!name.equals(other.name))
+            } else if (!methodType.equals(other.methodType))
+                return false;
+            if (fieldName == null) {
+                if (other.fieldName != null)
+                    return false;
+            } else if (!fieldName.equals(other.fieldName))
                 return false;
             if (type == null) {
                 if (other.type != null)
@@ -418,6 +465,7 @@ public class ObjectUtil {
                 return false;
             return true;
         }
+
     }
 
     protected static class CacheValue<T> {
