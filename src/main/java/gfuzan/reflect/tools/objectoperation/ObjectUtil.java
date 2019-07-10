@@ -281,7 +281,7 @@ public class ObjectUtil {
             }
         }
         if (opErr && showLog) {
-            System.err.println(getThisName() + ": [ERROR] "+type.getName()+"." + fieldName + "'操作失败.");
+            System.err.println(getThisName() + ": [ERROR] " + type.getName() + "." + fieldName + "'操作失败.");
         }
 
         return res;
@@ -472,8 +472,6 @@ public class ObjectUtil {
             if (this == obj)
                 return true;
             if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
                 return false;
             CacheKey other = (CacheKey) obj;
             if (methodType == null) {
