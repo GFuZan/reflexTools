@@ -340,7 +340,7 @@ public final class TreeUtil {
             if (emptyObject == null) {
                 T newObj = null;
                 try {
-                    newObj = getNewObject();
+                    newObj = getNewObject(emptyObject);
                 } catch (Exception e) {
                     System.err.println("Object2TreeUtil.removeEmptyNode()" + ": 创建对象失败!!");
                 }
@@ -439,7 +439,7 @@ public final class TreeUtil {
             T subNode = null;
             // i 新建对象
             for (int srcObjectIndex = 0; srcObjectIndex < attList.length; srcObjectIndex++) {
-                T newTarget = getNewObject();
+                T newTarget = getNewObject(subNode);
                 // 对象属性赋值
                 for (int srcAttIndex = 0; srcAttIndex < attList[srcObjectIndex].length; srcAttIndex++) {
                     // 一个原对象属性对应多个目标对象属性
@@ -512,12 +512,12 @@ public final class TreeUtil {
          * @throws Exception
          */
         @SuppressWarnings("unchecked")
-        private <T extends TreeNode<T>> T getNewObject() throws Exception {
+        private <T extends TreeNode<T>> T getNewObject(T type) throws ReflectiveOperationException {
             T t = null;
             try {
-                t = (T) this.returnType.newInstance();
+                t = (T)this.returnType.newInstance();
             } catch (InstantiationException | IllegalAccessException e) {
-                throw new Exception(e);
+                throw new ReflectiveOperationException(e);
             }
             return t;
         }
