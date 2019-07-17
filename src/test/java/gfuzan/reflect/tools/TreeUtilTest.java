@@ -10,8 +10,9 @@ import com.google.gson.Gson;
 
 import gfuzan.reflect.tools.entity.TableData;
 import gfuzan.reflect.tools.entity.TreeNodeVo;
+import gfuzan.reflect.tools.tree.Object2TreeUtil;
+import gfuzan.reflect.tools.tree.Object2TreeUtil.ConvertOpMethod;
 import gfuzan.reflect.tools.tree.TreeUtil;
-import gfuzan.reflect.tools.tree.TreeUtil.Object2Tree;
 import gfuzan.reflect.tools.tree.TreeUtil.StopType;
 
 public class TreeUtilTest {
@@ -21,7 +22,7 @@ public class TreeUtilTest {
         List<TableData> tableDataList = new ArrayList<>();
 
         // 生成数据
-        for (int a = 0; a < 5; a++) {
+        for (int a = 0; a < 50; a++) {
             String aName = "aName" + a;
             String aCode = "aCode" + a;
 
@@ -41,13 +42,60 @@ public class TreeUtilTest {
             }
         }
 
-        Object2Tree object2Tree = TreeUtil.getObject2TreeUtil(
-                new String[][] { { "dName", "dCode" }, { "cName", "cCode" }, { "bName", "bCode" }, { "aName", "aCode" } },
-                new String[][] { { "name", "label" }, { "code" } }, TreeNodeVo.class);
+        // 创建转换工具
+        Object2TreeUtil<TreeNodeVo, TableData> object2Tree = new Object2TreeUtil<>(
+                new ConvertOpMethod<TreeNodeVo, TableData>() {
+
+                    @Override
+                    public TreeNodeVo getTargetObject() {
+                        return new TreeNodeVo();
+                    }
+
+                    @Override
+                    public ArrayList<TreeNodeVo> splitObject(TableData srcObject) {
+
+                        // ArrayList中目标对象必须遵循从低层到高层的顺序
+                        ArrayList<TreeNodeVo> targetList = new ArrayList<>();
+
+                        // 第三层
+                        TreeNodeVo targetObject = getTargetObject();
+                        targetObject.setCode(srcObject.getdCode());
+                        targetObject.setLabel(srcObject.getdName());
+                        targetObject.setName(srcObject.getdName());
+                        targetList.add(targetObject);
+
+                        // 第二层
+                        targetObject = getTargetObject();
+                        targetObject.setCode(srcObject.getcCode());
+                        targetObject.setLabel(srcObject.getcName());
+                        targetObject.setName(srcObject.getcName());
+                        targetList.add(targetObject);
+
+                        // 第一层
+                        targetObject = getTargetObject();
+                        targetObject.setCode(srcObject.getbCode());
+                        targetObject.setLabel(srcObject.getbName());
+                        targetObject.setName(srcObject.getbName());
+                        targetList.add(targetObject);
+
+                        // 第零层
+                        targetObject = getTargetObject();
+                        targetObject.setCode(srcObject.getaCode());
+                        targetObject.setLabel(srcObject.getaName());
+                        targetObject.setName(srcObject.getaName());
+                        targetList.add(targetObject);
+
+                        return targetList;
+                    }
+                });
 
         long now = System.currentTimeMillis();
+
+        // tableDataList 已排序[ order by dCode, cCode, bCode, aCode]
         List<TreeNodeVo> RptYumCityVoList = object2Tree.excute(tableDataList);
         System.out.println("生成树耗时: " + (System.currentTimeMillis() - now) + "ms");
+        
+        // 移除空节点
         List<TreeNodeVo> treeList = object2Tree.removeEmptyNode(RptYumCityVoList);
 
         final List<TreeNodeVo> resList = new ArrayList<>();
