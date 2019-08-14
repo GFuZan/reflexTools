@@ -21,12 +21,12 @@ public class Object2TreeUtil<T extends TreeNode<T>, S> {
     /**
      * 比较方法
      */
-    public Comparator<T> comparator = null;
+    private Comparator<T> comparator = null;
 
     /**
      * 转换方法
      */
-    public ConvertOpMethod<T, S> convertOpMethod = null;
+    private ConvertOpMethod<T, S> convertOpMethod = null;
 
     /**
      * 执行转换
@@ -76,13 +76,7 @@ public class Object2TreeUtil<T extends TreeNode<T>, S> {
     public List<T> removeEmptyNode(List<T> forest, T emptyObject) {
 
         if (emptyObject == null) {
-            T newObj = null;
-            try {
-                newObj = this.convertOpMethod.getTargetObject();
-            } catch (Exception e) {
-                System.err.println("Object2TreeUtil.removeEmptyNode()" + ": 创建对象失败!!");
-            }
-            emptyObject = newObj;
+            emptyObject = this.convertOpMethod.getTargetObject();
         }
 
         final T emptyObj = emptyObject;
