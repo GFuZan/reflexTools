@@ -66,7 +66,7 @@ public class ObjectUtil {
      * @param fieldName
      *            属性名
      * @param opType
-     *            直接操作属性
+     *            操作属性方式
      * @return
      */
     public Object get(Object o, String fieldName, OpType opType) {
@@ -82,8 +82,8 @@ public class ObjectUtil {
      *            属性名
      * @param returnType
      *            返回值类型
-     * @param opField
-     *            直接操作属性
+     * @param opType
+     *            操作属性方式
      * @return
      */
     @SuppressWarnings("unchecked")
@@ -98,8 +98,8 @@ public class ObjectUtil {
      *            操作对象
      * @param fieldName
      *            属性名
-     * @param opField
-     *            直接操作属性
+     * @param opType
+     *            操作属性方式
      * @return
      */
     @SuppressWarnings("unchecked")
@@ -158,8 +158,8 @@ public class ObjectUtil {
      *            属性名
      * @param value
      *            参数值
-     * @param opField
-     *            直接操作属性
+     * @param opType
+     *            操作属性方式
      * @return 操作后对象
      */
     public <T> T set(T o, String fieldName, Object value, OpType opType) {
@@ -177,8 +177,8 @@ public class ObjectUtil {
      *            参数值
      * @param paramType
      *            参数类型
-     * @param opField
-     *            直接操作属性
+     * @param opType
+     *            操作属性方式
      * @return 操作后对象
      */
     public <T> T set(T o, String fieldName, Object value, Class<?> paramType, OpType opType) {
@@ -196,8 +196,8 @@ public class ObjectUtil {
      *            参数值
      * @param paramType
      *            参数类型
-     * @param opField
-     *            直接操作属性
+     * @param opType
+     *            操作属性方式
      * @return 操作后对象
      */
     @SuppressWarnings("unchecked")
@@ -222,8 +222,8 @@ public class ObjectUtil {
      *            属性名
      * @param value
      *            值
-     * @param opField
-     *            直接操作属性
+     * @param opType
+     *            操作属性方式
      * @return get方法返回实际值 set方法返回操作后对象
      */
     private final Object operation(Object o, String methodType, String fieldName, Class<?> paramType, Object value,
