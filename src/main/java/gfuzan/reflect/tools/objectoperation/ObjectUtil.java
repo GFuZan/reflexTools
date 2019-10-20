@@ -2,7 +2,10 @@ package gfuzan.reflect.tools.objectoperation;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,15 +21,80 @@ public class ObjectUtil {
      */
     public boolean showLog = true;
 
+    /**
+     * 缓存
+     */
     private Cache cache = null;
 
+    /**
+     * 缓存键
+     */
     private CacheKey cacheKey = null;
 
+    /**
+     * get方法前缀
+     */
     private final static String GET = "get";
+    /**
+     * set方法前缀
+     */
     private final static String SET = "set";
 
     public ObjectUtil() {
         cleanCache();
+    }
+    
+    
+    /**
+     * 获取所有字段名,包括父类
+     * @param type 类型
+     * @return 属性列表
+     */
+    public List<String> getAllFieldName(Object o) {
+        return getAllFieldName(o.getClass());
+    }
+    
+    /**
+     * 获取所有字段名,包括父类
+     * @param type 类型
+     * @return 属性列表
+     */
+    public List<String> getAllFieldName(Class<?> type) {
+        List<String> res = new LinkedList<>();
+        
+        List<Field> allField = getAllField(type);
+        for(Field field : allField) {
+            res.add(field.getName());
+        }
+        
+        return res;
+    }
+    
+    /**
+     * 获取所有字段,包括父类
+     * @param type 类型
+     * @return 属性列表
+     */
+    public List<Field> getAllField(Object o) {
+        return getAllField(o.getClass());
+    }
+    
+    /**
+     * 获取所有字段,包括父类
+     * @param type 类型
+     * @return 属性列表
+     */
+    public List<Field> getAllField(Class<?> type) {
+        
+        List<Field> res = new LinkedList<>();
+        
+        do {
+            Field[] fields = type.getDeclaredFields();
+            Collections.addAll(res, fields);
+            type = type.getSuperclass();
+        }while(type != null);
+        
+        return res;
     }
 
     /**
@@ -303,11 +371,15 @@ public class ObjectUtil {
             key = new CacheKey(type, fieldName, methodType);
             method = new CacheValue<>();
             this.cache.setMethod(key, method);
-            try {
-                method.value = type.getMethod(methodNameHandle(fieldName, methodType), parameterTypes);
-            } catch (NoSuchMethodException | SecurityException e) {
-                method.value = null;
-            }
+            String mothodName = methodNameHandle(fieldName, methodType);
+            do {
+                try {
+                    method.value = type.getMethod(mothodName, parameterTypes);
+                } catch (NoSuchMethodException e) {
+                    method.value = null;
+                    type = type.getSuperclass();
+                }
+            }while(method.value == null && type != null);
         }
         return method.value;
     }
@@ -326,11 +398,14 @@ public class ObjectUtil {
             key = new CacheKey(type, fieldName);
             field = new CacheValue<>();
             this.cache.setField(key, field);
-            try {
-                field.value = type.getDeclaredField(fieldName);
-            } catch (NoSuchFieldException | SecurityException e) {
-                field.value = null;
-            }
+            do {
+                try {
+                    field.value = type.getDeclaredField(fieldName);
+                } catch (NoSuchFieldException e) {
+                    field.value = null;
+                    type = type.getSuperclass();
+                }
+            }while(field.value == null && type != null);
         }
         return field.value;
     }
@@ -506,15 +581,15 @@ public class ObjectUtil {
     public static enum OpType {
 
         /**
-         * 只操作属性
+         * 直接获取/设置字段值
          */
         onlyField,
         /**
-         * 只操作方法
+         * 通过get/set方法获取/设置字段值
          */
         onlyMethod,
         /**
-         * 优先操作方法,操作方法失败时操作属性
+         * 优先使用get/set方法获取/设置字段值,若设置失败,则直接获取/设置字段值
          */
         auto;
     }
