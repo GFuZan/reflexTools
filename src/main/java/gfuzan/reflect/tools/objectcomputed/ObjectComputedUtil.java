@@ -3,6 +3,7 @@ package gfuzan.reflect.tools.objectcomputed;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * <b> 此实现对象内属性的四则运算</b>
@@ -45,7 +46,7 @@ public class ObjectComputedUtil {
     /**
      * BigDecimal精度取舍模式
      */
-    private static final Integer BIG_ROUND_MODE = BigDecimal.ROUND_HALF_UP;
+    private static final RoundingMode BIG_ROUND_MODE = RoundingMode.HALF_UP;
 
     /**
      * 对象内属性相加
@@ -289,7 +290,7 @@ public class ObjectComputedUtil {
         Class<?> type = o1.getClass();
         Object res = null;
         try {
-            res = type.newInstance();
+            res = type.getConstructor().newInstance();
 
             Method[] methods = type.getMethods();
             for (Method m : methods) {
@@ -712,7 +713,7 @@ public class ObjectComputedUtil {
     private static OpAttType attTypeHandle(Class<?>... opAttType) throws Exception {
         OpAttType res = null;
         try {
-            res = ObjectComputedUtil.class.newInstance().new OpAttType();
+            res = new ObjectComputedUtil().new OpAttType();
         } catch (Exception e) {
             System.err.println(getThisName() + ": [ERROR] 创建 'OpAttType' 类失败.");
             throw e;

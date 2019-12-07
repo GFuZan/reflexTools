@@ -1,6 +1,5 @@
 package gfuzan.reflect.tools.dataformat;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -39,18 +38,8 @@ public class DataFormatUitl implements InvocationHandler {
      *            Format接口类
      * @return Format接口类对象
      */
-    @SuppressWarnings("unchecked")
     public static <T> T newInstance(T obj, Class<T> formatInterface) {
-        T res = null;
-        try {
-            InvocationHandler ih = DataFormatUitl.class.newInstance();
-            setParam(ih, "target", obj);
-            res = (T) Proxy.newProxyInstance(formatInterface.getClassLoader(), new Class[] { formatInterface }, ih);
-        } catch (Exception e) {
-            System.err.println(getThisName() + ": [ERROR] " + e);
-        }
-        return res;
-
+        return newInstance(obj,formatInterface,true);
     }
 
     /**
@@ -66,9 +55,9 @@ public class DataFormatUitl implements InvocationHandler {
     public static <T> T newInstance(T obj, Class<T> formatInterface, boolean printLog) {
         T res = null;
         try {
-            InvocationHandler ih = DataFormatUitl.class.newInstance();
-            setParam(ih, "target", obj);
-            setParam(ih, "SHOW_LOG", printLog);
+            DataFormatUitl ih = new DataFormatUitl();
+            ih.target = obj;
+            ih.SHOW_LOG = printLog;
             res = (T) Proxy.newProxyInstance(formatInterface.getClassLoader(), new Class[] { formatInterface }, ih);
         } catch (Exception e) {
             System.err.println(getThisName() + ": [ERROR] " + e);
@@ -114,19 +103,6 @@ public class DataFormatUitl implements InvocationHandler {
             }
         }
         return res;
-    }
-
-    /**
-     * 设置参数
-     *
-     * @throws
-     * @throws NoSuchFieldException
-     */
-    private static InvocationHandler setParam(InvocationHandler ih, String name, Object value) throws Exception {
-        Field field = DataFormatUitl.class.getDeclaredField(name);
-        field.setAccessible(true);
-        field.set(ih, value);
-        return ih;
     }
 
     /**
