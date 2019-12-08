@@ -13,6 +13,7 @@ import gfuzan.reflect.tools.entity.TreeNodeVo;
 import gfuzan.reflect.tools.tree.Object2TreeUtil;
 import gfuzan.reflect.tools.tree.Object2TreeUtil.ConvertOpMethod;
 import gfuzan.reflect.tools.tree.TreeUtil;
+import gfuzan.reflect.tools.tree.TreeUtil.NodeComparable;
 import gfuzan.reflect.tools.tree.TreeUtil.StopType;
 
 public class TreeUtilTest {
@@ -117,6 +118,124 @@ public class TreeUtilTest {
         FileOutputStream fos = new FileOutputStream("D:/json.txt");
         fos.write(new Gson().toJson(treeList).getBytes());
         fos.close();
+    }
+
+
+    /**
+     * 去除节点测试_去除子节点
+     */
+    @Test
+    public void test_02(){
+        List<TreeNodeVo> treeList = getTree();
+        // 移除
+        System.out.println(new Gson().toJson(
+            TreeUtil.removeNode(treeList, new NodeComparable<TreeNodeVo>(){
+
+                @Override
+                public boolean comparableTo(TreeNodeVo treeNode, int depth) {
+                    if("bCode2_1".equals(treeNode.getCode())){
+                        return true;
+                    }
+                    return false;
+                }
+            })
+        ));
+    }
+
+    /**
+     * 去除节点测试_去除根节点
+     */
+    @Test
+    public void test_03(){
+        List<TreeNodeVo> treeList = getTree();
+        // 移除
+        System.out.println(new Gson().toJson(
+            TreeUtil.removeNode(treeList.get(0), new NodeComparable<TreeNodeVo>(){
+
+                @Override
+                public boolean comparableTo(TreeNodeVo treeNode, int depth) {
+                    if("aCode0".equals(treeNode.getCode())){
+                        return true;
+                    }
+                    return false;
+                }
+            })
+        ));
+    }
+
+
+    private List<TreeNodeVo> getTree(){
+                List<TableData> tableDataList = new ArrayList<>();
+                // 生成数据
+                for (int a = 0; a < 10; a++) {
+                    String aName = "aName" + a;
+                    String aCode = "aCode" + a;
+        
+                    for (int b = 0; b < 3; b++) {
+                        String bName = "bName" + a + "_" + b;
+                        String bCode = "bCode" + a + "_" + b;
+                        for (int c = 0; c < 3; c++) {
+                            String cName = "cName" + a + "_" + b + "_" + c;
+                            String cCode = "cCode" + a + "_" + b + "_" + c;
+                            for (int d = 0; d < 3; d++) {
+                                String dName = "dName" + a + "_" + b + "_" + c + "_" + d;
+                                String dCode = "dCode" + a + "_" + b + "_" + c + "_" + d;
+        
+                                tableDataList.add(new TableData(aName, aCode, bName, bCode, cName, cCode, dName, dCode));
+                            }
+                        }
+                    }
+                }
+        
+                // 创建转换工具
+                Object2TreeUtil<TreeNodeVo, TableData> object2Tree = new Object2TreeUtil<>(
+                        new ConvertOpMethod<TreeNodeVo, TableData>() {
+        
+                            @Override
+                            public TreeNodeVo getTargetObject() {
+                                return new TreeNodeVo();
+                            }
+        
+                            @Override
+                            public ArrayList<TreeNodeVo> splitObject(TableData srcObject) {
+        
+                                // ArrayList中目标对象必须遵循从低层到高层的顺序
+                                ArrayList<TreeNodeVo> targetList = new ArrayList<>();
+        
+                                // 第三层
+                                TreeNodeVo targetObject = getTargetObject();
+                                targetObject.setCode(srcObject.getdCode());
+                                targetObject.setLabel(srcObject.getdName());
+                                targetObject.setName(srcObject.getdName());
+                                targetList.add(targetObject);
+        
+                                // 第二层
+                                targetObject = getTargetObject();
+                                targetObject.setCode(srcObject.getcCode());
+                                targetObject.setLabel(srcObject.getcName());
+                                targetObject.setName(srcObject.getcName());
+                                targetList.add(targetObject);
+        
+                                // 第一层
+                                targetObject = getTargetObject();
+                                targetObject.setCode(srcObject.getbCode());
+                                targetObject.setLabel(srcObject.getbName());
+                                targetObject.setName(srcObject.getbName());
+                                targetList.add(targetObject);
+        
+                                // 第零层
+                                targetObject = getTargetObject();
+                                targetObject.setCode(srcObject.getaCode());
+                                targetObject.setLabel(srcObject.getaName());
+                                targetObject.setName(srcObject.getaName());
+                                targetList.add(targetObject);
+        
+                                return targetList;
+                            }
+                        });
+        
+                // tableDataList 已排序[ order by dCode, cCode, bCode, aCode]
+                return object2Tree.excute(tableDataList);
     }
 
 }
